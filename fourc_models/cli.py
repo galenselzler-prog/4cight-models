@@ -8,6 +8,9 @@
                --idea-base sentence-transformers/all-MiniLM-L6-v2
   fourc export --run runs/r1 --out dist/r1          # ONNX + JSON for the app
   fourc convert-emotion --model-dir models/m2-emotion --out dist/emotion [--clips clips/]
+  fourc convert-speaker --out dist/speaker                  # downloads the open ECAPA model once
+  fourc synth-voices --out voices/synthetic                 # macOS text-to-speech test voices
+  fourc speaker-eval --model dist/speaker/speaker.onnx --voices voices/synthetic
 """
 
 from __future__ import annotations
@@ -44,6 +47,20 @@ def main(argv=None):
     m.add_argument("--clips", default=None, help="optional folder of real .wav clips to check the conversion on")
     m.add_argument("--no-int8", action="store_true", help="skip the smaller int8 copy")
     m.add_argument("--version", default="2.0.0")
+    cs = sub.add_parser("convert-speaker", help="convert the open speaker-recognition model to ONNX")
+    cs.add_argument("--source", default="speechbrain/spkrec-ecapa-voxceleb", help="Hugging Face id or local folder")
+    cs.add_argument("--out", required=True)
+    cs.add_argument("--cache", default="models/speaker-source", help="where the downloaded model is kept")
+    sv = sub.add_parser("synth-voices", help="make synthetic test voices with macOS text-to-speech")
+    sv.add_argument("--out", required=True)
+    sv.add_argument("--voices", type=int, default=8)
+    se = sub.add_parser("speaker-eval", help="measure speaker recognition on test group recordings")
+    se.add_argument("--model", required=True, help="speaker.onnx")
+    se.add_argument("--voices", required=True, help="folder with one sub-folder of .wav files per speaker")
+    se.add_argument("--sessions", type=int, default=20)
+    se.add_argument("--group-size", type=int, default=4)
+    se.add_argument("--snr", type=float, default=15.0, help="speech-to-classroom-noise ratio in dB")
+    se.add_argument("--report", default=None, help="write the full report JSON here")
     a = p.parse_args(argv)
 
     if a.cmd == "synth":
@@ -69,6 +86,16 @@ def main(argv=None):
     elif a.cmd == "export":
         from .export import export
         export(a.run, a.out)
+    elif a.cmd == "convert-speaker":
+        from .speaker_export import convert as convert_speaker
+        convert_speaker(a.source, a.out, savedir=a.cache)
+    elif a.cmd == "synth-voices":
+        from .speaker_eval import synth_voices
+        synth_voices(a.out, n_voices=a.voices)
+        print("Synthetic voices are for testing only; real accuracy needs real, consented recordings.")
+    elif a.cmd == "speaker-eval":
+        from .speaker_eval import evaluate
+        evaluate(a.model, a.voices, out=a.report, sessions=a.sessions, group_size=a.group_size, snr_db=a.snr)
     elif a.cmd == "convert-emotion":
         from .emotion_export import convert
         convert(a.model_dir, a.out, clip_dir=a.clips, int8=not a.no_int8, version=a.version)

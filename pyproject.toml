@@ -16,6 +16,7 @@ dependencies = [
   "onnx>=1.16",
   "onnxruntime>=1.18",
   "safetensors>=0.4",
+  "speechbrain>=1.0",        # speaker-recognition base model (convert-speaker)
 ]
 
 [project.optional-dependencies]

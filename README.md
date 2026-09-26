@@ -103,6 +103,31 @@ Output: `emotion.onnx` (full precision, about 1.3 GB, reference copy) and `emoti
 graph. The int8 copy is fine for iPhone and iPad; it is heavy for Chromebooks, so a smaller
 distilled emotion model is the follow-up for the web app.
 
+## Speaker recognition (who is talking)
+
+The app tells students apart with voiceprints made at enrollment. The voice model is SpeechBrain's
+ECAPA-TDNN (`speechbrain/spkrec-ecapa-voxceleb`, Apache-2.0, 21M parameters, 84 MB), converted once:
+
+```bash
+fourc convert-speaker --out dist/speaker        # downloads the open model once, checks it, writes speaker.onnx
+```
+
+Measure it before any student is recorded. `synth-voices` makes test voices with macOS text-to-speech;
+`speaker-eval` builds noisy group recordings from them (who spoke when is known), runs the same steps
+as the app, and recommends the match threshold for `src/config.ts`:
+
+```bash
+fourc synth-voices --out voices/synthetic
+fourc speaker-eval --model dist/speaker/speaker.onnx --voices voices/synthetic --report dist/speaker/eval.json
+```
+
+Synthetic voices are cleaner and more different from each other than children in a classroom, so
+their numbers are a best case. For numbers you can trust, put real consented recordings (or Mozilla
+Common Voice clips) in `voices/<speaker>/*.wav` and run `speaker-eval` again. `voices/` is git-ignored.
+
+Voiceprints are biometric data about children: the app keeps them in memory for the current session
+only, never uploads or saves them. Keeping them between sessions needs a legal/privacy decision first.
+
 ## Release gates (real data)
 
 | Piece | Gate |
@@ -110,6 +135,7 @@ distilled emotion model is the follow-up for the web app.
 | Utterance heads | Test macro-F1 and kappa at or near labeler-vs-labeler agreement |
 | Idea encoder | Held-out pair macro-F1 ≥ 0.75; idea-link macro-F1 reported |
 | Scorers | Test QWK ≥ 0.60 and ≥ 90% within one level, per grade band |
+| Speaker recognition | ≥ 90% of talk time on the right student, ≤ 5% on the wrong one, on real classroom recordings |
 
 ## Still to do
 
