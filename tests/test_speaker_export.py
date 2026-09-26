@@ -101,7 +101,7 @@ def test_speaker_eval_end_to_end(tiny_source, tmp_path):
     from fourc_models.speaker_eval import evaluate
     from fourc_models.speaker_export import convert
     convert(str(tiny_source), tmp_path / "m", savedir=tmp_path / "cache", log=lambda *_: None)
-    for k, f0 in enumerate([110, 180, 260]):
+    for k, f0 in enumerate([110, 180, 260, 400]):
         d = tmp_path / "voices" / f"v{k}"
         d.mkdir(parents=True)
         for i in range(10):
@@ -112,7 +112,8 @@ def test_speaker_eval_end_to_end(tiny_source, tmp_path):
                 w.writeframes((x / np.abs(x).max() * 12000).astype(np.int16).tobytes())
     rep = evaluate(tmp_path / "m" / "speaker.onnx", tmp_path / "voices", out=tmp_path / "r.json", sessions=3,
                    group_size=3, log=lambda *_: None)
-    assert rep["voices"] == 3 and rep["speech_minutes"] > 0
+    assert rep["voices"] == 4 and rep["speech_minutes"] > 0
+    assert any(s["outsider_credited"] is not None for s in rep["sweep"]), "sessions include an unenrolled voice"
     rec = rep["recommended"]
     assert abs(rec["correct"] + rec["wrong"] + rec["unknown"] - 1) < 1e-6
     assert (tmp_path / "r.json").exists()

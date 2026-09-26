@@ -34,6 +34,7 @@ import numpy as np
 from .emotion_export import read_wav
 
 SR = 16000
+OUTSIDER = "__outsider__"
 
 
 # ---- mirror of src/engine/audio.ts detectSpeech --------------------------------
@@ -146,18 +147,25 @@ def pink_noise(n: int, rng) -> np.ndarray:
     return (x / (np.abs(x).max() + 1e-9)).astype(np.float32)
 
 
-def build_session(group: list[Voice], rng, n_turns=24, snr_db=15.0):
-    """Returns (audio, truth) where truth is a per-sample speaker index (-1 = nobody)."""
+def build_session(group: list[Voice], rng, n_turns=24, snr_db=15.0, outsider: Voice | None = None,
+                  outsider_share=0.15):
+    """Returns (audio, truth): per-sample speaker index into `group`, -1 = nobody,
+    -2 = the outsider (a voice nobody enrolled, like the teacher or a
+    neighbouring group), who takes about `outsider_share` of the turns."""
     parts, truth = [], []
     for _ in range(n_turns):
-        k = rng.randrange(len(group))
-        clip = rng.choice(group[k].pool)
+        if outsider is not None and rng.random() < outsider_share:
+            k, voice = -2, outsider
+        else:
+            k = rng.randrange(len(group))
+            voice = group[k]
+        clip = rng.choice(voice.pool)
         clip = clip / (np.abs(clip).max() + 1e-9) * rng.uniform(0.25, 0.6)  # distance to the iPad varies
         gap = np.zeros(int(rng.uniform(0.2, 1.0) * SR), np.float32)
         parts += [gap, clip.astype(np.float32)]
         truth += [np.full(len(gap), -1), np.full(len(clip), k)]
     audio = np.concatenate(parts)
-    speech_rms = np.sqrt(np.mean(audio[np.concatenate(truth) >= 0] ** 2))
+    speech_rms = np.sqrt(np.mean(audio[np.concatenate(truth) != -1] ** 2))
     noise = pink_noise(len(audio), np.random.default_rng(rng.randrange(1 << 30)))
     audio = audio + noise * speech_rms / (10 ** (snr_db / 20)) / (np.sqrt(np.mean(noise ** 2)) + 1e-9)
     return np.clip(audio, -1, 1).astype(np.float32), np.concatenate(truth)
@@ -183,7 +191,9 @@ def evaluate(onnx_path, voices_dir, out=None, sessions=20, group_size=4, snr_db=
     trials = []
     for _ in range(sessions):
         group = rng.sample(voices, group_size)
-        audio, truth = build_session(group, rng, snr_db=snr_db)
+        others = [v for v in voices if v not in group]
+        outsider = rng.choice(others) if others else None
+        audio, truth = build_session(group, rng, snr_db=snr_db, outsider=outsider)
         vp = {v.name: prints[v.name] for v in group}
         pieces = split_segments(detect_speech(audio), int(1.5 * SR), int(0.75 * SR))
         ids = [v.name for v in group]
@@ -191,21 +201,29 @@ def evaluate(onnx_path, voices_dir, out=None, sessions=20, group_size=4, snr_db=
         for a, b in pieces:
             sims = V @ embed(audio[a:b])
             lab = truth[a:b]
-            spoken = lab[lab >= 0]
-            majority = ids[np.bincount(spoken).argmax()] if len(spoken) else None
+            spoken = lab[lab != -1]
+            if not len(spoken):
+                majority = None  # only room noise
+            else:
+                vals, counts = np.unique(spoken, return_counts=True)
+                top = vals[counts.argmax()]
+                majority = OUTSIDER if top == -2 else ids[top]
             trials.append((sorted(zip(sims.tolist(), ids), reverse=True), majority, b - a))
-    speech_total = sum(n for _, m, n in trials if m is not None)
+    speech_total = sum(n for _, m, n in trials if m not in (None, OUTSIDER))
+    outsider_total = sum(n for _, m, n in trials if m == OUTSIDER)
 
     sweep = []
     for thr in np.round(np.arange(0.0, 0.81, 0.05), 2):
         for margin in (0.0, 0.05, 0.1):
-            right = wrong = unknown = noise_claimed = 0
+            right = wrong = unknown = noise_claimed = outsider_claimed = 0
             for ranked, truth_id, n in trials:
                 best, who = ranked[0]
                 second = ranked[1][0] if len(ranked) > 1 else -1
                 pred = who if best >= thr and best - second >= margin else None
                 if truth_id is None:
                     noise_claimed += n if pred else 0
+                elif truth_id == OUTSIDER:
+                    outsider_claimed += n if pred else 0
                 elif pred is None:
                     unknown += n
                 elif pred == truth_id:
@@ -214,15 +232,23 @@ def evaluate(onnx_path, voices_dir, out=None, sessions=20, group_size=4, snr_db=
                     wrong += n
             sweep.append({"threshold": float(thr), "margin": margin, "correct": right / speech_total,
                           "wrong": wrong / speech_total, "unknown": unknown / speech_total,
+                          "outsider_credited": outsider_claimed / outsider_total if outsider_total else None,
                           "noise_assigned_sec": round(noise_claimed / SR, 1)})
-    ok = [s for s in sweep if s["wrong"] <= 0.05] or sweep
-    best = max(ok, key=lambda s: (s["correct"], -s["wrong"]))
+    # Wrong student <= 5% and an unenrolled voice credited to students <= 20%;
+    # among those, the most talk time on the right student.
+    ok = [s for s in sweep if s["wrong"] <= 0.05 and (s["outsider_credited"] or 0) <= 0.20]
+    best = (max(ok, key=lambda s: (s["correct"], -s["wrong"])) if ok
+            else min(sweep, key=lambda s: s["wrong"] + (s["outsider_credited"] or 0)))
     report = {"voices": len(voices), "sessions": sessions, "group_size": group_size, "snr_db": snr_db,
               "speech_minutes": round(speech_total / SR / 60, 1), "recommended": best,
-              "note": "Talk time: correct = on the right student, wrong = on another student, unknown = unassigned.",
+              "note": ("Talk time: correct = on the right student, wrong = on another student, unknown = "
+                       "unassigned. outsider_credited = share of an unenrolled voice's speech wrongly "
+                       "credited to a student."),
               "sweep": sweep}
     log(f"  recommended threshold {best['threshold']} margin {best['margin']}: "
-        f"{best['correct']:.0%} of talk time on the right student, {best['wrong']:.0%} wrong, {best['unknown']:.0%} unassigned")
+        f"{best['correct']:.0%} of talk time on the right student, {best['wrong']:.0%} wrong, {best['unknown']:.0%} unassigned"
+        + (f"; unenrolled voice credited to a student {best['outsider_credited']:.0%} of the time"
+           if best["outsider_credited"] is not None else ""))
     if out:
         Path(out).write_text(json.dumps(report, indent=2))
     return report
