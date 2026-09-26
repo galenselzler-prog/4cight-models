@@ -86,6 +86,23 @@ fourc export --run runs/synthetic --out dist/synthetic
 
 Synthetic data only proves the plumbing works. Its scores say nothing about real accuracy.
 
+## Existing M2 emotion model → app
+
+The 2024 speech-emotion model (wav2vec2-large, 316M parameters, labels background / curiosity /
+happy / negativity / neutral) feeds the communication and collaboration scores. Convert it once:
+
+```bash
+# models/m2-emotion/ = config.json, preprocessor_config.json, model.safetensors from the Drive "Models/model" folder
+fourc convert-emotion --model-dir models/m2-emotion --out dist/emotion
+# optional: also check the conversion on real classroom clips (16-bit WAV)
+fourc convert-emotion --model-dir models/m2-emotion --out dist/emotion --clips clips/
+```
+
+Output: `emotion.onnx` (full precision, about 1.3 GB, reference copy) and `emotion.int8.onnx`
+(about 355 MB, the one the app loads). Both take raw 16 kHz mono audio and normalise it inside the
+graph. The int8 copy is fine for iPhone and iPad; it is heavy for Chromebooks, so a smaller
+distilled emotion model is the follow-up for the web app.
+
 ## Release gates (real data)
 
 | Piece | Gate |

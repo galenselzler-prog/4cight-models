@@ -7,6 +7,7 @@
   fourc train  --data data/labeled --out runs/r1 --base microsoft/deberta-v3-small \
                --idea-base sentence-transformers/all-MiniLM-L6-v2
   fourc export --run runs/r1 --out dist/r1          # ONNX + JSON for the app
+  fourc convert-emotion --model-dir models/m2-emotion --out dist/emotion [--clips clips/]
 """
 
 from __future__ import annotations
@@ -37,6 +38,12 @@ def main(argv=None):
     e = sub.add_parser("export", help="export a run to ONNX + JSON for the app")
     e.add_argument("--run", required=True)
     e.add_argument("--out", required=True)
+    m = sub.add_parser("convert-emotion", help="convert the existing M2 emotion model to ONNX (+ int8)")
+    m.add_argument("--model-dir", required=True, help="folder with config.json and model.safetensors")
+    m.add_argument("--out", required=True)
+    m.add_argument("--clips", default=None, help="optional folder of real .wav clips to check the conversion on")
+    m.add_argument("--no-int8", action="store_true", help="skip the smaller int8 copy")
+    m.add_argument("--version", default="2.0.0")
     a = p.parse_args(argv)
 
     if a.cmd == "synth":
@@ -62,6 +69,9 @@ def main(argv=None):
     elif a.cmd == "export":
         from .export import export
         export(a.run, a.out)
+    elif a.cmd == "convert-emotion":
+        from .emotion_export import convert
+        convert(a.model_dir, a.out, clip_dir=a.clips, int8=not a.no_int8, version=a.version)
 
 
 if __name__ == "__main__":

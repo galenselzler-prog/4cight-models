@@ -2,6 +2,8 @@
 data/
 runs/
 dist/
+models/
+clips/
 *.onnx
 *.pt
 *.safetensors
