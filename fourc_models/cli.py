@@ -12,6 +12,7 @@
   fourc synth-voices --out voices/synthetic                 # macOS text-to-speech test voices
   fourc speaker-eval --model dist/speaker/speaker.onnx --voices voices/synthetic
   fourc labeling-setup --url https://4cight-labeling.onrender.com   # once (needs LABEL_STUDIO_TOKEN, R2_*)
+  fourc upload-models dist/emotion/emotion.int8.onnx dist/speaker/speaker.onnx   # app models -> private R2
   fourc prep-labeling                                               # new recordings -> labeling tasks
   fourc import-labels --utterances utt.json --ratings ratings.json --out data/labeled --grade-band 3-5
 """
@@ -66,6 +67,8 @@ def main(argv=None):
     se.add_argument("--report", default=None, help="write the full report JSON here")
     ls = sub.add_parser("labeling-setup", help="create the Label Studio projects and connect them to R2")
     ls.add_argument("--url", required=True, help="Label Studio address")
+    um = sub.add_parser("upload-models", help="upload the app's .onnx files to the private R2 models bucket")
+    um.add_argument("files", nargs="+")
     pl = sub.add_parser("prep-labeling", help="turn new research recordings in R2 into labeling tasks")
     pl.add_argument("--bucket", default=None)
     il = sub.add_parser("import-labels", help="Label Studio JSON exports -> training CSVs")
@@ -105,6 +108,9 @@ def main(argv=None):
         if not token:
             p.error("set LABEL_STUDIO_TOKEN (Label Studio -> Account & Settings -> Personal Access Token)")
         labeling_setup(a.url, token)
+    elif a.cmd == "upload-models":
+        from .labeling import upload_models
+        upload_models(a.files)
     elif a.cmd == "prep-labeling":
         from .labeling import prep_labeling
         prep_labeling(a.bucket)

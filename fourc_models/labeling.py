@@ -163,6 +163,24 @@ def prep_labeling(bucket: str | None = None, s3=None, log=print) -> dict:
     return stats
 
 
+def upload_models(paths: list[str | Path], bucket: str | None = None, s3=None, log=print) -> list[str]:
+    """Puts the app's .onnx files in the private models bucket (the Cloudflare
+    dashboard can't upload files over 300 MB; this uses multipart uploads)."""
+    s3 = s3 or r2_client()
+    bucket = bucket or os.environ.get("R2_MODELS_BUCKET", "4cight-models")
+    done = []
+    for p in map(Path, paths):
+        if p.suffix != ".onnx":
+            raise ValueError(f"{p}: only .onnx model files go in the models bucket")
+        s3.upload_file(str(p), bucket, p.name, ExtraArgs={"ContentType": "application/octet-stream"})
+        size = s3.head_object(Bucket=bucket, Key=p.name)["ContentLength"]
+        if size != p.stat().st_size:
+            raise RuntimeError(f"{p.name}: uploaded {size} bytes, expected {p.stat().st_size}")
+        log(f"  uploaded {p.name} ({size / 1e6:.0f} MB) to r2://{bucket}/")
+        done.append(p.name)
+    return done
+
+
 # ---------------------------------------------------------------- Label Studio API
 class LabelStudio:
     """Minimal Label Studio API client. `token` is a Personal Access Token

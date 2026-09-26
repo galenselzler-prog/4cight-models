@@ -93,3 +93,17 @@ def test_label_studio_configs_use_the_guide_vocabulary():
     assert aliases("sentiment") == L.SENTIMENT and aliases("move") == L.MOVE
     assert aliases("ct_skill") == L.CT_SKILL and aliases("argument") == L.ARGUMENT
     assert aliases("idea_link") == L.IDEA_LINK
+
+
+def test_upload_models_to_mock_r2(tmp_path):
+    moto = pytest.importorskip("moto")
+    import boto3
+    f = tmp_path / "speaker.onnx"
+    f.write_bytes(b"x" * 1000)
+    with moto.mock_aws():
+        s3 = boto3.client("s3", region_name="us-east-1")
+        s3.create_bucket(Bucket="models")
+        assert labeling.upload_models([f], "models", s3=s3, log=lambda *_: None) == ["speaker.onnx"]
+        assert s3.head_object(Bucket="models", Key="speaker.onnx")["ContentLength"] == 1000
+        with pytest.raises(ValueError):
+            labeling.upload_models([tmp_path / "notes.txt"], "models", s3=s3)
