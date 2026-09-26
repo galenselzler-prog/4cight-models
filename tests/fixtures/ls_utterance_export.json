@@ -1,0 +1,618 @@
+[
+ {
+  "id": 1,
+  "annotations": [
+   {
+    "id": 1,
+    "completed_by": 1,
+    "result": [
+     {
+      "from_name": "speaker",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "[STUDENT_A]"
+       ]
+      }
+     },
+     {
+      "from_name": "sentiment",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "neutral"
+       ]
+      }
+     },
+     {
+      "from_name": "move",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "new_idea"
+       ]
+      }
+     },
+     {
+      "from_name": "ct_skill",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "none"
+       ]
+      }
+     },
+     {
+      "from_name": "argument",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "none"
+       ]
+      }
+     },
+     {
+      "from_name": "idea_link",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "new"
+       ]
+      }
+     },
+     {
+      "from_name": "idea_id",
+      "to_name": "text",
+      "type": "textarea",
+      "value": {
+       "text": [
+        "I1"
+       ]
+      }
+     }
+    ],
+    "was_cancelled": false,
+    "ground_truth": false,
+    "created_at": "2026-09-26T21:16:56.275021Z",
+    "updated_at": "2026-09-26T21:16:56.275047Z",
+    "draft_created_at": null,
+    "lead_time": null,
+    "prediction": {},
+    "result_count": 1,
+    "unique_id": "66a038fb-28a3-46b5-9ee7-4c97488a28ac",
+    "import_id": null,
+    "last_action": null,
+    "bulk_created": false,
+    "task": 1,
+    "project": 1,
+    "updated_by": 1,
+    "parent_prediction": null,
+    "parent_annotation": null,
+    "last_created_by": null
+   },
+   {
+    "id": 2,
+    "completed_by": 1,
+    "result": [
+     {
+      "from_name": "speaker",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "[STUDENT_A]"
+       ]
+      }
+     },
+     {
+      "from_name": "sentiment",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "neutral"
+       ]
+      }
+     },
+     {
+      "from_name": "move",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "new_idea"
+       ]
+      }
+     },
+     {
+      "from_name": "ct_skill",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "none"
+       ]
+      }
+     },
+     {
+      "from_name": "argument",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "none"
+       ]
+      }
+     },
+     {
+      "from_name": "idea_link",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "new"
+       ]
+      }
+     },
+     {
+      "from_name": "idea_id",
+      "to_name": "text",
+      "type": "textarea",
+      "value": {
+       "text": [
+        "I1"
+       ]
+      }
+     }
+    ],
+    "was_cancelled": false,
+    "ground_truth": false,
+    "created_at": "2026-09-26T21:16:56.369057Z",
+    "updated_at": "2026-09-26T21:16:56.369097Z",
+    "draft_created_at": null,
+    "lead_time": null,
+    "prediction": {},
+    "result_count": 1,
+    "unique_id": "343d6056-e115-4ff7-ab45-d2cd3aa0aafd",
+    "import_id": null,
+    "last_action": null,
+    "bulk_created": false,
+    "task": 1,
+    "project": 1,
+    "updated_by": 1,
+    "parent_prediction": null,
+    "parent_annotation": null,
+    "last_created_by": null
+   }
+  ],
+  "drafts": [],
+  "predictions": [],
+  "data": {
+   "utterance_id": "u_1b2c3d4e_0000",
+   "session_id": "1b2c3d4e-0000-4000-8000-000000000001",
+   "activity_id": "ramp-car",
+   "grade_band": "",
+   "text": "what if we tape the wheels",
+   "context_prev": "",
+   "audio": "s3://4cight-research/labeling/clips/1b2c3d4e-0000-4000-8000-000000000001/0000.wav",
+   "speaker_options": [
+    {
+     "value": "[STUDENT_A]"
+    },
+    {
+     "value": "[STUDENT_B]"
+    },
+    {
+     "value": "[OTHER]"
+    }
+   ],
+   "suggested_speaker": "",
+   "split": "train",
+   "guide_version": "1.2"
+  },
+  "meta": {},
+  "created_at": "2026-09-26T21:16:56.129798Z",
+  "updated_at": "2026-09-26T21:16:56.402964Z",
+  "allow_skip": true,
+  "inner_id": 1,
+  "total_annotations": 2,
+  "cancelled_annotations": 0,
+  "total_predictions": 0,
+  "comment_count": 0,
+  "unresolved_comment_count": 0,
+  "last_comment_updated_at": null,
+  "project": 1,
+  "updated_by": 1,
+  "comment_authors": []
+ },
+ {
+  "id": 2,
+  "annotations": [
+   {
+    "id": 3,
+    "completed_by": 1,
+    "result": [
+     {
+      "from_name": "speaker",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "[STUDENT_B]"
+       ]
+      }
+     },
+     {
+      "from_name": "sentiment",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "neutral"
+       ]
+      }
+     },
+     {
+      "from_name": "move",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "reasoning"
+       ]
+      }
+     },
+     {
+      "from_name": "ct_skill",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "evaluation"
+       ]
+      }
+     },
+     {
+      "from_name": "argument",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "challenge"
+       ]
+      }
+     }
+    ],
+    "was_cancelled": false,
+    "ground_truth": false,
+    "created_at": "2026-09-26T21:16:56.456474Z",
+    "updated_at": "2026-09-26T21:16:56.456554Z",
+    "draft_created_at": null,
+    "lead_time": null,
+    "prediction": {},
+    "result_count": 1,
+    "unique_id": "b4391df0-3f16-4c1c-8ed6-4b886c4dd3e9",
+    "import_id": null,
+    "last_action": null,
+    "bulk_created": false,
+    "task": 2,
+    "project": 1,
+    "updated_by": 1,
+    "parent_prediction": null,
+    "parent_annotation": null,
+    "last_created_by": null
+   },
+   {
+    "id": 4,
+    "completed_by": 1,
+    "result": [
+     {
+      "from_name": "speaker",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "[STUDENT_B]"
+       ]
+      }
+     },
+     {
+      "from_name": "sentiment",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "neutral"
+       ]
+      }
+     },
+     {
+      "from_name": "move",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "reasoning"
+       ]
+      }
+     },
+     {
+      "from_name": "ct_skill",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "evaluation"
+       ]
+      }
+     },
+     {
+      "from_name": "argument",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "challenge"
+       ]
+      }
+     }
+    ],
+    "was_cancelled": false,
+    "ground_truth": false,
+    "created_at": "2026-09-26T21:16:56.531818Z",
+    "updated_at": "2026-09-26T21:16:56.531846Z",
+    "draft_created_at": null,
+    "lead_time": null,
+    "prediction": {},
+    "result_count": 1,
+    "unique_id": "7f2515db-dcdf-4941-86b8-0706522b55f8",
+    "import_id": null,
+    "last_action": null,
+    "bulk_created": false,
+    "task": 2,
+    "project": 1,
+    "updated_by": 1,
+    "parent_prediction": null,
+    "parent_annotation": null,
+    "last_created_by": null
+   }
+  ],
+  "drafts": [],
+  "predictions": [],
+  "data": {
+   "utterance_id": "u_1b2c3d4e_0001",
+   "session_id": "1b2c3d4e-0000-4000-8000-000000000001",
+   "activity_id": "ramp-car",
+   "grade_band": "",
+   "text": "that will not work because it failed before",
+   "context_prev": "[?]: what if we tape the wheels",
+   "audio": "s3://4cight-research/labeling/clips/1b2c3d4e-0000-4000-8000-000000000001/0001.wav",
+   "speaker_options": [
+    {
+     "value": "[STUDENT_A]"
+    },
+    {
+     "value": "[STUDENT_B]"
+    },
+    {
+     "value": "[OTHER]"
+    }
+   ],
+   "suggested_speaker": "",
+   "split": "train",
+   "guide_version": "1.2"
+  },
+  "meta": {},
+  "created_at": "2026-09-26T21:16:56.129878Z",
+  "updated_at": "2026-09-26T21:16:56.558896Z",
+  "allow_skip": true,
+  "inner_id": 2,
+  "total_annotations": 2,
+  "cancelled_annotations": 0,
+  "total_predictions": 0,
+  "comment_count": 0,
+  "unresolved_comment_count": 0,
+  "last_comment_updated_at": null,
+  "project": 1,
+  "updated_by": 1,
+  "comment_authors": []
+ },
+ {
+  "id": 3,
+  "annotations": [
+   {
+    "id": 5,
+    "completed_by": 1,
+    "result": [
+     {
+      "from_name": "speaker",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "[STUDENT_A]"
+       ]
+      }
+     },
+     {
+      "from_name": "sentiment",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "positive"
+       ]
+      }
+     },
+     {
+      "from_name": "move",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "coordinates"
+       ]
+      }
+     },
+     {
+      "from_name": "ct_skill",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "none"
+       ]
+      }
+     },
+     {
+      "from_name": "argument",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "none"
+       ]
+      }
+     }
+    ],
+    "was_cancelled": false,
+    "ground_truth": false,
+    "created_at": "2026-09-26T21:16:56.604850Z",
+    "updated_at": "2026-09-26T21:16:56.604877Z",
+    "draft_created_at": null,
+    "lead_time": null,
+    "prediction": {},
+    "result_count": 1,
+    "unique_id": "6a39fc58-484f-4594-9442-602faa23b79f",
+    "import_id": null,
+    "last_action": null,
+    "bulk_created": false,
+    "task": 3,
+    "project": 1,
+    "updated_by": 1,
+    "parent_prediction": null,
+    "parent_annotation": null,
+    "last_created_by": null
+   },
+   {
+    "id": 6,
+    "completed_by": 1,
+    "result": [
+     {
+      "from_name": "speaker",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "[STUDENT_A]"
+       ]
+      }
+     },
+     {
+      "from_name": "sentiment",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "neutral"
+       ]
+      }
+     },
+     {
+      "from_name": "move",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "coordinates"
+       ]
+      }
+     },
+     {
+      "from_name": "ct_skill",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "none"
+       ]
+      }
+     },
+     {
+      "from_name": "argument",
+      "to_name": "text",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "none"
+       ]
+      }
+     }
+    ],
+    "was_cancelled": false,
+    "ground_truth": false,
+    "created_at": "2026-09-26T21:16:56.687458Z",
+    "updated_at": "2026-09-26T21:16:56.687526Z",
+    "draft_created_at": null,
+    "lead_time": null,
+    "prediction": {},
+    "result_count": 1,
+    "unique_id": "5edd56dc-34e0-4058-bd09-02f3f8e932ab",
+    "import_id": null,
+    "last_action": null,
+    "bulk_created": false,
+    "task": 3,
+    "project": 1,
+    "updated_by": 1,
+    "parent_prediction": null,
+    "parent_annotation": null,
+    "last_created_by": null
+   }
+  ],
+  "drafts": [],
+  "predictions": [],
+  "data": {
+   "utterance_id": "u_1b2c3d4e_0002",
+   "session_id": "1b2c3d4e-0000-4000-8000-000000000001",
+   "activity_id": "ramp-car",
+   "grade_band": "",
+   "text": "okay let's try it",
+   "context_prev": "[?]: what if we tape the wheels [?]: that will not work because it failed before",
+   "audio": "s3://4cight-research/labeling/clips/1b2c3d4e-0000-4000-8000-000000000001/0002.wav",
+   "speaker_options": [
+    {
+     "value": "[STUDENT_A]"
+    },
+    {
+     "value": "[STUDENT_B]"
+    },
+    {
+     "value": "[OTHER]"
+    }
+   ],
+   "suggested_speaker": "",
+   "split": "train",
+   "guide_version": "1.2"
+  },
+  "meta": {},
+  "created_at": "2026-09-26T21:16:56.129921Z",
+  "updated_at": "2026-09-26T21:16:56.715896Z",
+  "allow_skip": true,
+  "inner_id": 3,
+  "total_annotations": 2,
+  "cancelled_annotations": 0,
+  "total_predictions": 0,
+  "comment_count": 0,
+  "unresolved_comment_count": 0,
+  "last_comment_updated_at": null,
+  "project": 1,
+  "updated_by": 1,
+  "comment_authors": []
+ }
+]

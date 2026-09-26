@@ -11,6 +11,9 @@
   fourc convert-speaker --out dist/speaker                  # downloads the open ECAPA model once
   fourc synth-voices --out voices/synthetic                 # macOS text-to-speech test voices
   fourc speaker-eval --model dist/speaker/speaker.onnx --voices voices/synthetic
+  fourc labeling-setup --url https://4cight-labeling.onrender.com   # once (needs LABEL_STUDIO_TOKEN, R2_*)
+  fourc prep-labeling                                               # new recordings -> labeling tasks
+  fourc import-labels --utterances utt.json --ratings ratings.json --out data/labeled --grade-band 3-5
 """
 
 from __future__ import annotations
@@ -61,6 +64,15 @@ def main(argv=None):
     se.add_argument("--group-size", type=int, default=4)
     se.add_argument("--snr", type=float, default=15.0, help="speech-to-classroom-noise ratio in dB")
     se.add_argument("--report", default=None, help="write the full report JSON here")
+    ls = sub.add_parser("labeling-setup", help="create the Label Studio projects and connect them to R2")
+    ls.add_argument("--url", required=True, help="Label Studio address")
+    pl = sub.add_parser("prep-labeling", help="turn new research recordings in R2 into labeling tasks")
+    pl.add_argument("--bucket", default=None)
+    il = sub.add_parser("import-labels", help="Label Studio JSON exports -> training CSVs")
+    il.add_argument("--utterances", required=True, help="export of the '4Cight utterances' project (JSON)")
+    il.add_argument("--ratings", default=None, help="export of the '4Cight segment ratings' project (JSON)")
+    il.add_argument("--out", required=True)
+    il.add_argument("--grade-band", default=None, help="for recordings made without one: K-2, 3-5, 6-8, 9-12 or adult")
     a = p.parse_args(argv)
 
     if a.cmd == "synth":
@@ -86,6 +98,20 @@ def main(argv=None):
     elif a.cmd == "export":
         from .export import export
         export(a.run, a.out)
+    elif a.cmd == "labeling-setup":
+        import os
+        from .labeling import labeling_setup
+        token = os.environ.get("LABEL_STUDIO_TOKEN")
+        if not token:
+            p.error("set LABEL_STUDIO_TOKEN (Label Studio -> Account & Settings -> Personal Access Token)")
+        labeling_setup(a.url, token)
+    elif a.cmd == "prep-labeling":
+        from .labeling import prep_labeling
+        prep_labeling(a.bucket)
+    elif a.cmd == "import-labels":
+        from .labeling import import_labels
+        import_labels(a.utterances, a.ratings, a.out, default_grade_band=a.grade_band)
+        print(f"Next: fourc check --data {a.out}")
     elif a.cmd == "convert-speaker":
         from .speaker_export import convert as convert_speaker
         convert_speaker(a.source, a.out, savedir=a.cache)

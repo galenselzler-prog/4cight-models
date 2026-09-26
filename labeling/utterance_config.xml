@@ -1,0 +1,71 @@
+<!-- 4Cight utterance labels, Classroom Sentiment Labeling Guide v1.2.
+     One task = one utterance. The stored values (alias) are exactly the
+     guide's vocabulary, so `fourc import-labels` needs no mapping. -->
+<View>
+  <Header value="Session $session_id · activity $activity_id · grades $grade_band" size="6"/>
+  <View style="background:#f4f4f4;padding:8px;border-radius:6px">
+    <Text name="context" value="$context_prev" granularity="word"/>
+  </View>
+  <Audio name="audio" value="$audio" hotkey="space"/>
+  <Header value="Utterance to label" size="5"/>
+  <Text name="text" value="$text"/>
+  <TextArea name="corrected_text" toName="text" maxSubmissions="1" editable="true" rows="2"
+            placeholder="Only if the transcript is wrong or has a name in it: the corrected text, names as [STUDENT_A] etc."/>
+
+  <Header value="Speaker" size="6"/>
+  <Choices name="speaker" toName="text" choice="single" required="true" showInline="true" value="$speaker_options"/>
+
+  <Header value="Sentiment" size="6"/>
+  <Choices name="sentiment" toName="text" choice="single" required="true" showInline="true">
+    <Choice value="Positive" alias="positive"/>
+    <Choice value="Neutral" alias="neutral"/>
+    <Choice value="Negative" alias="negative"/>
+  </Choices>
+
+  <Header value="Move" size="6"/>
+  <Choices name="move" toName="text" choice="single" required="true" showInline="true">
+    <Choice value="Question" alias="question"/>
+    <Choice value="Reasoning" alias="reasoning"/>
+    <Choice value="New idea" alias="new_idea"/>
+    <Choice value="Builds on" alias="builds_on"/>
+    <Choice value="Coordinates" alias="coordinates"/>
+    <Choice value="Stuck" alias="stuck"/>
+    <Choice value="Off task" alias="off_task"/>
+    <Choice value="Other" alias="other"/>
+  </Choices>
+
+  <Header value="Critical-thinking skill" size="6"/>
+  <Choices name="ct_skill" toName="text" choice="single" required="true" showInline="true">
+    <Choice value="None" alias="none"/>
+    <Choice value="Interpretation" alias="interpretation"/>
+    <Choice value="Analysis" alias="analysis"/>
+    <Choice value="Evaluation" alias="evaluation"/>
+    <Choice value="Inference" alias="inference"/>
+    <Choice value="Explanation" alias="explanation"/>
+    <Choice value="Self-regulation" alias="self_regulation"/>
+  </Choices>
+
+  <Header value="Argument part" size="6"/>
+  <Choices name="argument" toName="text" choice="single" required="true" showInline="true">
+    <Choice value="None" alias="none"/>
+    <Choice value="Claim" alias="claim"/>
+    <Choice value="Evidence" alias="evidence"/>
+    <Choice value="Challenge" alias="challenge"/>
+    <Choice value="Revision" alias="revision"/>
+  </Choices>
+
+  <Header value="Idea (only if the utterance states or uses an idea)" size="6"/>
+  <Choices name="idea_link" toName="text" choice="single" showInline="true">
+    <Choice value="New" alias="new"/>
+    <Choice value="Repeat" alias="repeat"/>
+    <Choice value="Develops" alias="develops"/>
+    <Choice value="Combines" alias="combines"/>
+  </Choices>
+  <TextArea name="idea_id" toName="text" maxSubmissions="1" rows="1" placeholder="Idea id if new, e.g. I3"/>
+  <TextArea name="linked_ideas" toName="text" maxSubmissions="1" rows="1" placeholder="Ideas it repeats/develops/combines, e.g. I1;I2"/>
+
+  <Choices name="flags" toName="text" choice="multiple" showInline="true">
+    <Choice value="Unclear audio" alias="unclear"/>
+    <Choice value="Teacher's idea" alias="teacher_idea"/>
+  </Choices>
+</View>

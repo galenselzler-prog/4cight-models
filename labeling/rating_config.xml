@@ -1,0 +1,25 @@
+<!-- 4Cight segment ratings (teachers), guide v1.2 "Segment ratings".
+     One task = one student in one session. NE = not enough evidence. -->
+<View>
+  <Header value="Rate $rated · session $segment_id · activity $activity_id · grades $grade_band" size="5"/>
+  <Audio name="audio" value="$audio"/>
+  <View style="max-height:360px;overflow:auto;background:#f4f4f4;padding:8px;border-radius:6px">
+    <Text name="transcript" value="$transcript"/>
+  </View>
+  <Header value="Critical thinking (rubric levels 1-4)" size="6"/>
+  <Choices name="critical_thinking" toName="transcript" choice="single" required="true" showInline="true">
+    <Choice value="1 Beginning" alias="1"/>
+    <Choice value="2 Developing" alias="2"/>
+    <Choice value="3 Proficient" alias="3"/>
+    <Choice value="4 Advanced" alias="4"/>
+    <Choice value="Not enough evidence" alias="NE"/>
+  </Choices>
+  <Header value="Creativity (rubric levels 1-4)" size="6"/>
+  <Choices name="creativity" toName="transcript" choice="single" required="true" showInline="true">
+    <Choice value="1 Beginning" alias="1"/>
+    <Choice value="2 Developing" alias="2"/>
+    <Choice value="3 Proficient" alias="3"/>
+    <Choice value="4 Advanced" alias="4"/>
+    <Choice value="Not enough evidence" alias="NE"/>
+  </Choices>
+</View>

@@ -128,6 +128,29 @@ Common Voice clips) in `voices/<speaker>/*.wav` and run `speaker-eval` again. `v
 Voiceprints are biometric data about children: the app keeps them in memory for the current session
 only, never uploads or saves them. Keeping them between sessions needs a legal/privacy decision first.
 
+## Real data: record, label, train
+
+1. **Record.** In the app, turn on *Save for research* on the setup screen (the teacher confirms
+   signed consent, form `2026-09-v1`). When the session ends the app uploads `audio.wav` +
+   `session.json` (names replaced by `[STUDENT_A]`...) to the private R2 bucket `4cight-research`.
+2. **Prepare tasks.** `fourc prep-labeling` cuts each new recording into one clip and task per
+   utterance, plus one rating task per student, and writes them next to the recordings in R2.
+3. **Label.** Label Studio (Render service `4cight-labeling`, from `render.yaml`) shows the tasks.
+   Run `fourc labeling-setup --url https://4cight-labeling.onrender.com` once to create the two
+   projects ("4Cight utterances", "4Cight segment ratings") and connect them to R2. Up to two
+   labelers per task; mark the reviewed answer as ground truth when they disagree.
+4. **Import.** Export each project as JSON, then
+   `fourc import-labels --utterances utt.json --ratings ratings.json --out data/labeled --grade-band 3-5`
+   and `fourc check --data data/labeled`. Disagreements that weren't reviewed are left out and counted.
+5. **Train** as above with `--data data/labeled`.
+
+Settings (shell or `.env`, never committed): `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`,
+`R2_SECRET_ACCESS_KEY`, `R2_RESEARCH_BUCKET` (default `4cight-research`), and for
+`labeling-setup` a Label Studio personal access token in `LABEL_STUDIO_TOKEN`.
+
+Same-idea pairs (`pairs.csv`) come later, sampled from the labeled idea links; the importer writes
+an empty file with the right columns until then.
+
 ## Release gates (real data)
 
 | Piece | Gate |

@@ -17,10 +17,12 @@ dependencies = [
   "onnxruntime>=1.18",
   "safetensors>=0.4",
   "speechbrain>=1.0",        # speaker-recognition base model (convert-speaker)
+  "boto3>=1.34",             # private R2 storage (prep-labeling)
+  "requests>=2.31",          # Label Studio API (labeling-setup)
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8"]
+dev = ["pytest>=8", "moto>=5"]
 
 [project.scripts]
 fourc = "fourc_models.cli:main"

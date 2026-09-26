@@ -1,0 +1,37 @@
+# Render Blueprint for the private labeling tool (Label Studio).
+# Render dashboard -> New -> Blueprint -> pick this repo. You'll be asked for
+# LABEL_STUDIO_USERNAME (your email) and LABEL_STUDIO_PASSWORD (the first
+# admin login). Everyone else joins by invite link; open sign-up is off.
+services:
+  - type: web
+    name: 4cight-labeling
+    runtime: docker
+    dockerfilePath: ./labeling/Dockerfile
+    dockerContext: ./labeling
+    plan: standard        # Label Studio needs ~2 GB of memory
+    region: virginia
+    healthCheckPath: /health
+    envVars:
+      - key: POSTGRE_HOST
+        fromDatabase: { name: 4cight-labeling-db, property: host }
+      - key: POSTGRE_PORT
+        fromDatabase: { name: 4cight-labeling-db, property: port }
+      - key: POSTGRE_USER
+        fromDatabase: { name: 4cight-labeling-db, property: user }
+      - key: POSTGRE_PASSWORD
+        fromDatabase: { name: 4cight-labeling-db, property: password }
+      - key: POSTGRE_NAME
+        fromDatabase: { name: 4cight-labeling-db, property: database }
+      - key: LABEL_STUDIO_HOST
+        value: https://4cight-labeling.onrender.com
+      - key: CSRF_TRUSTED_ORIGINS
+        value: https://4cight-labeling.onrender.com
+      - key: LABEL_STUDIO_USERNAME
+        sync: false
+      - key: LABEL_STUDIO_PASSWORD
+        sync: false
+
+databases:
+  - name: 4cight-labeling-db
+    plan: basic_256mb
+    region: virginia

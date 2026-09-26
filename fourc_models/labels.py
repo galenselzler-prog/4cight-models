@@ -19,7 +19,7 @@ CT_SKILL = [
 ARGUMENT = ["none", "claim", "evidence", "challenge", "revision"]
 IDEA_LINK = ["new", "repeat", "develops", "combines"]
 PAIR_LABEL = ["different", "related", "same"]
-GRADE_BANDS = ["K-2", "3-5", "6-8", "9-12"]
+GRADE_BANDS = ["K-2", "3-5", "6-8", "9-12", "adult"]  # "adult": staff pilot sessions
 
 #: Heads of the multi-task utterance model, in a fixed order.
 UTTERANCE_HEADS = {

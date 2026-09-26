@@ -1,0 +1,238 @@
+[
+ {
+  "id": 4,
+  "annotations": [
+   {
+    "id": 7,
+    "completed_by": 1,
+    "result": [
+     {
+      "from_name": "critical_thinking",
+      "to_name": "transcript",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "3"
+       ]
+      }
+     },
+     {
+      "from_name": "creativity",
+      "to_name": "transcript",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "2"
+       ]
+      }
+     }
+    ],
+    "was_cancelled": false,
+    "ground_truth": false,
+    "created_at": "2026-09-26T21:16:56.816856Z",
+    "updated_at": "2026-09-26T21:16:56.816882Z",
+    "draft_created_at": null,
+    "lead_time": null,
+    "prediction": {},
+    "result_count": 1,
+    "unique_id": "b9265b8d-b057-4da5-8c2a-f04949d3e459",
+    "import_id": null,
+    "last_action": null,
+    "bulk_created": false,
+    "task": 4,
+    "project": 2,
+    "updated_by": 1,
+    "parent_prediction": null,
+    "parent_annotation": null,
+    "last_created_by": null
+   },
+   {
+    "id": 8,
+    "completed_by": 1,
+    "result": [
+     {
+      "from_name": "critical_thinking",
+      "to_name": "transcript",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "4"
+       ]
+      }
+     },
+     {
+      "from_name": "creativity",
+      "to_name": "transcript",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "2"
+       ]
+      }
+     }
+    ],
+    "was_cancelled": false,
+    "ground_truth": false,
+    "created_at": "2026-09-26T21:16:56.897558Z",
+    "updated_at": "2026-09-26T21:16:56.897589Z",
+    "draft_created_at": null,
+    "lead_time": null,
+    "prediction": {},
+    "result_count": 1,
+    "unique_id": "3c5ee5b2-2faa-4bca-a286-9fddb735fdca",
+    "import_id": null,
+    "last_action": null,
+    "bulk_created": false,
+    "task": 4,
+    "project": 2,
+    "updated_by": 1,
+    "parent_prediction": null,
+    "parent_annotation": null,
+    "last_created_by": null
+   }
+  ],
+  "drafts": [],
+  "predictions": [],
+  "data": {
+   "segment_id": "1b2c3d4e-0000-4000-8000-000000000001",
+   "rated": "[STUDENT_A]",
+   "activity_id": "ramp-car",
+   "grade_band": "",
+   "audio": "s3://4cight-research/recordings/1b2c3d4e-0000-4000-8000-000000000001/audio.wav",
+   "transcript": "[00:00] [?]: what if we tape the wheels\n[00:03] [?]: that will not work because it failed before\n[00:08] [?]: okay let's try it",
+   "split": "train"
+  },
+  "meta": {},
+  "created_at": "2026-09-26T21:16:56.172450Z",
+  "updated_at": "2026-09-26T21:16:56.924142Z",
+  "allow_skip": true,
+  "inner_id": 1,
+  "total_annotations": 2,
+  "cancelled_annotations": 0,
+  "total_predictions": 0,
+  "comment_count": 0,
+  "unresolved_comment_count": 0,
+  "last_comment_updated_at": null,
+  "project": 2,
+  "updated_by": 1,
+  "comment_authors": []
+ },
+ {
+  "id": 5,
+  "annotations": [
+   {
+    "id": 9,
+    "completed_by": 1,
+    "result": [
+     {
+      "from_name": "critical_thinking",
+      "to_name": "transcript",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "2"
+       ]
+      }
+     },
+     {
+      "from_name": "creativity",
+      "to_name": "transcript",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "NE"
+       ]
+      }
+     }
+    ],
+    "was_cancelled": false,
+    "ground_truth": false,
+    "created_at": "2026-09-26T21:16:56.967474Z",
+    "updated_at": "2026-09-26T21:16:56.967542Z",
+    "draft_created_at": null,
+    "lead_time": null,
+    "prediction": {},
+    "result_count": 1,
+    "unique_id": "239fbd00-5180-438a-8b72-0164d2979d6a",
+    "import_id": null,
+    "last_action": null,
+    "bulk_created": false,
+    "task": 5,
+    "project": 2,
+    "updated_by": 1,
+    "parent_prediction": null,
+    "parent_annotation": null,
+    "last_created_by": null
+   },
+   {
+    "id": 10,
+    "completed_by": 1,
+    "result": [
+     {
+      "from_name": "critical_thinking",
+      "to_name": "transcript",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "2"
+       ]
+      }
+     },
+     {
+      "from_name": "creativity",
+      "to_name": "transcript",
+      "type": "choices",
+      "value": {
+       "choices": [
+        "NE"
+       ]
+      }
+     }
+    ],
+    "was_cancelled": false,
+    "ground_truth": false,
+    "created_at": "2026-09-26T21:16:57.065449Z",
+    "updated_at": "2026-09-26T21:16:57.065474Z",
+    "draft_created_at": null,
+    "lead_time": null,
+    "prediction": {},
+    "result_count": 1,
+    "unique_id": "6507b6a8-7ea6-4a3b-a82c-9172f8880fb2",
+    "import_id": null,
+    "last_action": null,
+    "bulk_created": false,
+    "task": 5,
+    "project": 2,
+    "updated_by": 1,
+    "parent_prediction": null,
+    "parent_annotation": null,
+    "last_created_by": null
+   }
+  ],
+  "drafts": [],
+  "predictions": [],
+  "data": {
+   "segment_id": "1b2c3d4e-0000-4000-8000-000000000001",
+   "rated": "[STUDENT_B]",
+   "activity_id": "ramp-car",
+   "grade_band": "",
+   "audio": "s3://4cight-research/recordings/1b2c3d4e-0000-4000-8000-000000000001/audio.wav",
+   "transcript": "[00:00] [?]: what if we tape the wheels\n[00:03] [?]: that will not work because it failed before\n[00:08] [?]: okay let's try it",
+   "split": "train"
+  },
+  "meta": {},
+  "created_at": "2026-09-26T21:16:56.172564Z",
+  "updated_at": "2026-09-26T21:16:57.091452Z",
+  "allow_skip": true,
+  "inner_id": 2,
+  "total_annotations": 2,
+  "cancelled_annotations": 0,
+  "total_predictions": 0,
+  "comment_count": 0,
+  "unresolved_comment_count": 0,
+  "last_comment_updated_at": null,
+  "project": 2,
+  "updated_by": 1,
+  "comment_authors": []
+ }
+]
