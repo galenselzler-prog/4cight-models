@@ -1,0 +1,31 @@
+[project]
+name = "fourc-models"
+version = "0.1.0"
+description = "4Cight in-house critical-thinking and creativity models (proprietary)"
+license = { text = "Proprietary. Copyright (c) 2026 4Cight Inc. All rights reserved." }
+requires-python = ">=3.10"
+dependencies = [
+  "torch>=2.2",
+  "transformers>=4.45",
+  "tokenizers>=0.20",
+  "sentencepiece>=0.2",      # DeBERTa-v3 tokenizer
+  "protobuf>=4",             # converting the DeBERTa tokenizer to tokenizer.json
+  "pandas>=2.0",
+  "numpy>=1.26",
+  "scikit-learn>=1.4",
+  "onnx>=1.16",
+  "onnxruntime>=1.18",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+fourc = "fourc_models.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["fourc_models"]

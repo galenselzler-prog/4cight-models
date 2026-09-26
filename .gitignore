@@ -1,0 +1,11 @@
+# Never commit student data, trained weights or exports.
+data/
+runs/
+dist/
+*.onnx
+*.pt
+*.safetensors
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.venv/
