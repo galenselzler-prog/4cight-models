@@ -68,6 +68,7 @@ def test_convert_speech_head(speech_head_dir, tmp_path):
     man = convert(d, tmp_path / "out", log=lambda *_: None)
     assert man["checks"]["fp32_max_prob_diff"] < 1e-3
     assert man["models"][0]["file"] == "emotion.int8.onnx" and man["models"][0]["task"] == "emotion"
+    assert man["models"][0]["baseModelLicense"] == "Apache-2.0"
     s = ort.InferenceSession(str(tmp_path / "out" / "emotion.int8.onnx"))
     p = s.run(["probs"], {"audio": np.zeros((2, 24000), np.float32)})[0]
     assert p.shape == (2, 5) and np.allclose(p.sum(1), 1, atol=1e-4)
@@ -85,4 +86,5 @@ def test_convert_hf_head_with_real_wav_clips(tmp_path):
             w.writeframes((np.sin(np.arange(sr * 2) / 7) * 8000).astype(np.int16).tobytes())
     man = convert(tmp_path / "m", tmp_path / "out", clip_dir=clips, log=lambda *_: None)
     assert man["checks"]["check_clips"] == "real" and man["checks"]["n_clips"] == 2
+    assert man["models"][0]["baseModelLicense"] == "CHECK BEFORE SHIPPING"  # unknown base stays flagged
     assert man["checks"]["fp32_max_prob_diff"] < 1e-3

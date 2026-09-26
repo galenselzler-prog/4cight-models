@@ -24,14 +24,8 @@ import torch
 
 from . import idea_model, utterance_model
 from .creativity_metrics import IdeaBank
+from .licenses import license_for
 
-LICENSES = {  # base model -> license, for IP due diligence (PROPRIETARY.md)
-    "tiny": "none (randomly initialised, test only)",
-    "microsoft/deberta-v3-small": "MIT",
-    "microsoft/deberta-v3-xsmall": "MIT",
-    "sentence-transformers/all-MiniLM-L6-v2": "Apache-2.0",
-    "bert-base-uncased": "Apache-2.0",
-}
 
 
 class _Wrap(torch.nn.Module):
@@ -71,7 +65,7 @@ def _onnx(model, tok, path: Path, output_names: list[str], sample: list[str]) ->
 def _spec(path: Path, id_: str, task: str, version: str, base: str) -> dict:
     return {"id": id_, "task": task, "version": version, "format": "onnx", "file": path.name,
             "sha256": hashlib.sha256(path.read_bytes()).hexdigest(), "sizeBytes": path.stat().st_size,
-            "baseModel": base, "baseModelLicense": LICENSES.get(base, "CHECK BEFORE SHIPPING"),
+            "baseModel": base, "baseModelLicense": license_for(base),
             "trainingData": "4Cight classroom labels (guide v1.2); see training report"}
 
 

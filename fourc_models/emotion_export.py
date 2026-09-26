@@ -28,6 +28,8 @@ import numpy as np
 import torch
 from torch import nn
 
+from .licenses import license_for
+
 SAMPLE_RATE = 16000
 #: Checkpoint label name -> the app's EmotionSignal key (src/engine/types.ts).
 APP_LABELS = {"background noise": "background", "background": "background", "curiosity": "curiosity",
@@ -203,7 +205,7 @@ def convert(model_dir, out_dir, clip_dir=None, int8: bool = True, version: str =
 
     spec = {"id": "fourc-emotion", "task": "emotion", "version": version, "format": "onnx", "file": shipped.name,
             "sha256": _sha(shipped), "sizeBytes": shipped.stat().st_size, "baseModel": info["base"],
-            "baseModelLicense": "CHECK BEFORE SHIPPING (see model card of the base model)",
+            "baseModelLicense": license_for(info["base"]),
             "trainingData": "4Cight M2 classroom emotion data (2024)"}
     manifest = {"models": [spec], "labels": info["labels"], "checkpointLabels": info["checkpoint_labels"],
                 "input": {"name": "audio", "sampleRate": SAMPLE_RATE, "channels": 1, "dtype": "float32",
