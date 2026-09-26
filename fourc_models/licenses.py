@@ -19,7 +19,8 @@ LICENSES = {
     # M2 emotion model's base, and that model's own base (checked 2026-09-26)
     "lighteternal/wav2vec2-large-xlsr-53-greek": "Apache-2.0",
     "facebook/wav2vec2-large-xlsr-53": "Apache-2.0",
-    # speaker-recognition base (checked 2026-09-26; trained on VoxCeleb, CC BY 4.0)
+    # speaker-recognition base (model card checked 2026-09-26; trained on VoxCeleb 1+2,
+    # whose dataset terms should be confirmed in the IP review)
     "speechbrain/spkrec-ecapa-voxceleb": "Apache-2.0",
 }
 
