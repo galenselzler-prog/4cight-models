@@ -75,7 +75,7 @@ def load_segment_ratings(path: str | Path) -> pd.DataFrame:
     """One row per (segment, person, skill) with the final level. Rows rated
     NE (not enough evidence) are kept for reference but have level None."""
     df = _read(path, SEGMENT_COLUMNS)
-    _check_values(df, "skill", ["critical_thinking", "creativity"], path)
+    _check_values(df, "skill", L.RATED_SKILLS, path)
     _check_values(df, "final_level", ["1", "2", "3", "4", L.NOT_ENOUGH_EVIDENCE], path)
     df = df.copy()
     df["level"] = df["final_level"].map(lambda v: None if v == L.NOT_ENOUGH_EVIDENCE else int(v))

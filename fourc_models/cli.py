@@ -97,7 +97,7 @@ def main(argv=None):
         from .pipeline import run
         rep = run(a.data, a.out, base=a.base, idea_base=a.idea_base, epochs=a.epochs, idea_epochs=a.idea_epochs,
                   device=a.device, seed=a.seed)
-        print(json.dumps({k: rep[k] for k in ("critical_thinking_scorer", "creativity_scorer")}, indent=2))
+        print(json.dumps({k: rep[k] for k in ("critical_thinking_scorer", "creativity_scorer", "communication_scorer", "collaboration_scorer")}, indent=2))
     elif a.cmd == "export":
         from .export import export
         export(a.run, a.out)

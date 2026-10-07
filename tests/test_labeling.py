@@ -107,3 +107,11 @@ def test_upload_models_to_mock_r2(tmp_path):
         assert s3.head_object(Bucket="models", Key="speaker.onnx")["ContentLength"] == 1000
         with pytest.raises(ValueError):
             labeling.upload_models([tmp_path / "notes.txt"], "models", s3=s3)
+
+
+def test_rating_config_rates_all_four_skills():
+    import re
+    from fourc_models import labels as L
+    cfg = (Path(__file__).parent.parent / "labeling" / "rating_config.xml").read_text()
+    names = re.findall(r'<Choices name="([^"]+)"', cfg)
+    assert names == L.RATED_SKILLS

@@ -4,7 +4,7 @@
 
 FOR TESTING THE PIPELINE ONLY. It lets every stage (loading, training,
 scoring, export) run end to end before real labels exist. Each simulated
-student has a hidden critical-thinking and creativity level (1-4) that drives
+student has a hidden critical-thinking, creativity, communication and collaboration level (1-4) that drives
 what they say; the teacher ratings are those levels plus noise, so a working
 pipeline should recover them well above chance. Numbers from synthetic data
 say nothing about real-world accuracy.
@@ -65,12 +65,15 @@ def _session(rng: random.Random, session_id: str, activity: str, grade: str, spl
     students = [f"[STUDENT_{chr(65 + i)}]" for i in range(n_students)]
     ct_level = {s: rng.randint(1, 4) for s in students}
     cr_level = {s: rng.randint(1, 4) for s in students}
+    comm_level = {s: rng.randint(1, 4) for s in students}
+    collab_level = {s: rng.randint(1, 4) for s in students}
 
     rows, ideas_so_far = [], []  # ideas_so_far: list of (idea_id, cat, idx)
     prev = []
     for turn in range(n_turns):
-        s = rng.choice(students)
-        ct, cr = ct_level[s], cr_level[s]
+        # higher communication level -> takes more of the turns
+        s = rng.choices(students, weights=[comm_level[x] for x in students])[0]
+        ct, cr, cl = ct_level[s], cr_level[s], collab_level[s]
         row = dict(sentiment="neutral", move="other", ct_skill="none", argument="none",
                    idea_id="", idea_link="", linked_ideas="", teacher_idea="0")
         roll = rng.random()
@@ -105,6 +108,10 @@ def _session(rng: random.Random, session_id: str, activity: str, grade: str, spl
             y = rng.choice(rng.choice(list(categories.values())))[0]
             row.update(move=move, ct_skill=skill, argument=arg,
                        text=rng.choice(opts).format(x=x, y=y))
+        elif roll < 0.12 * cr + 0.14 * ct + 0.07 * cl:  # collaborative turn
+            row.update(move="coordinates", sentiment="positive",
+                       text=rng.choice(["good idea, you try it and I will help", "nice, let us do that together",
+                                        "thanks, can you hold it while I measure"]))
         else:
             move, sent, opts = rng.choice(PLAIN)
             row.update(move=move, sentiment=sent, text=rng.choice(opts))
@@ -116,7 +123,8 @@ def _session(rng: random.Random, session_id: str, activity: str, grade: str, spl
 
     ratings = []
     for s in students:
-        for skill, lvl in (("critical_thinking", ct_level[s]), ("creativity", cr_level[s])):
+        for skill, lvl in (("critical_thinking", ct_level[s]), ("creativity", cr_level[s]),
+                           ("communication", comm_level[s]), ("collaboration", collab_level[s])):
             noisy = min(4, max(1, lvl + rng.choice([0, 0, 0, 1, -1])))
             ratings.append(dict(segment_id=session_id, activity_id=activity, grade_band=grade,
                                 rated=s, skill=skill, final_level=str(noisy)))

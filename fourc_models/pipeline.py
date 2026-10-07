@@ -1,6 +1,7 @@
 # Copyright © 2026 4Cight Inc. All rights reserved.
 # PROPRIETARY AND CONFIDENTIAL. Unauthorized copying or distribution is prohibited.
-"""End-to-end training run for the critical-thinking and creativity models.
+"""End-to-end training run for the critical-thinking, creativity, communication
+and collaboration models.
 
   1. utterance model (sentiment, move, CT skill, argument part)
   2. idea encoder (same / related / different ideas)
@@ -28,6 +29,7 @@ from . import labels as L
 from .creativity_metrics import CR_FEATURES, IDEA_MOVES, IdeaBank, creativity_features, link_ideas
 from .ct_features import CT_FEATURES, ct_features
 from .scorer import OrdinalScorer, join_ratings
+from .social_features import COLLAB_FEATURES, COMM_FEATURES, social_features
 
 
 def _embed_ideas(model, tok, df: pd.DataFrame) -> np.ndarray:
@@ -97,6 +99,18 @@ def run(data_dir, out_dir, base: str = "tiny", idea_base: str | None = None, epo
     ct.save(out / "scorer_critical_thinking.json", version)
     cr.save(out / "scorer_creativity.json", version)
 
+    # Communication and collaboration: fitted only when teachers rated them, so
+    # runs on older data (critical thinking and creativity only) still work.
+    socf = social_features(pred)
+    social_res = {}
+    for skill, names in (("communication", COMM_FEATURES), ("collaboration", COLLAB_FEATURES)):
+        if not (ratings["skill"] == skill).any():
+            log(f"  {skill}: no teacher ratings in this data, skipped")
+            continue
+        sc, res, _ = _fit_scorer(socf, ratings, skill, names, key, split_of, log)
+        sc.save(out / f"scorer_{skill}.json", version)
+        social_res[skill] = res
+
     # Diagnostic: same CT scorer on features from GOLD labels = ceiling if the utterance model were perfect.
     gold_ct = join_ratings(ct_features(utts), ratings, "critical_thinking")
     gold_ct = gold_ct[gold_ct[key].map(split_of) == "test"]
@@ -111,6 +125,8 @@ def run(data_dir, out_dir, base: str = "tiny", idea_base: str | None = None, epo
         "idea_model": {**im_res, "test_idea_link_macro_f1": None if link_f1 is None else round(link_f1, 4)},
         "critical_thinking_scorer": {**ct_res, "test_on_gold_labels": ct_ceiling},
         "creativity_scorer": cr_res,
+        "communication_scorer": social_res.get("communication"),
+        "collaboration_scorer": social_res.get("collaboration"),
         "example_evidence": {"speaker": example["speaker"].iloc[0], "level": int(example["level"].iloc[0]),
                              "predicted": ct.predict(example)[0], "because": ct.evidence(example.iloc[0])}
         if len(example) else None,

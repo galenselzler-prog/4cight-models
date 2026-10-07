@@ -31,7 +31,9 @@ def test_report_has_all_metrics(run_dir):
         assert {"train", "validation", "test"} <= set(rep[k])
     # Synthetic levels drive behaviour, so a working pipeline beats chance on held-out
     # sessions. Validation and test are averaged because each holds only ~24 people.
-    for k in ("critical_thinking_scorer", "creativity_scorer"):
+    for k in ("critical_thinking_scorer", "creativity_scorer", "communication_scorer", "collaboration_scorer"):
+        assert {"train", "validation", "test"} <= set(rep[k]), k
+    for k in ("critical_thinking_scorer", "creativity_scorer", "communication_scorer", "collaboration_scorer"):
         assert (rep[k]["validation"]["qwk"] + rep[k]["test"]["qwk"]) / 2 > 0.25, k
     assert rep["example_evidence"]["because"]
 
@@ -55,6 +57,10 @@ def test_export_onnx_runs(run_dir):
     vec = ort.InferenceSession(str(out / "idea.onnx")).run(None, {
         "input_ids": np.array([e2.ids], dtype=np.int64), "attention_mask": np.array([e2.attention_mask], dtype=np.int64)})[0]
     assert abs(np.linalg.norm(vec) - 1) < 1e-3
+    assert man["scorers"] == ["scorer_communication.json", "scorer_collaboration.json",
+                              "scorer_critical_thinking.json", "scorer_creativity.json"]
+    for name in man["scorers"]:
+        assert (out / name).exists(), name
     s = json.loads((out / "scorer_creativity.json").read_text())
     assert len(s["weights"]) == len(s["features"]) and len(s["thresholds"]) == 3
     assert json.loads((out / "idea_bank.json").read_text())["activities"]
@@ -105,3 +111,20 @@ def test_deberta_family_exports_to_onnx(tmp_path):
     diff = _onnx(UtteranceModel(DebertaV2Model(cfg)), tok, tmp_path / "d.onnx", list(HEADS),
                  ["what if we tape the wheels", "that will not work [CTX] ok"])
     assert diff < 1e-3
+
+
+def test_social_features_are_readable_shares():
+    from fourc_models.social_features import COLLAB_FEATURES, COMM_FEATURES, social_features
+    u = pd.DataFrame({
+        "session_id": ["s"] * 4, "speaker": ["A", "B", "A", "B"],
+        "text": ["what if we try tape", "good idea, I will hold it", "why does that help", "ok"],
+        "move": ["new_idea", "coordinates", "question", "other"],
+        "sentiment": ["neutral", "positive", "neutral", "neutral"],
+        "ct_skill": ["none"] * 4, "argument": ["none"] * 4,
+    })
+    f = social_features(u).set_index("speaker")
+    assert f.loc["A", "turn_share"] == 0.5 and f.loc["A", "share_balance"] == 1.0
+    assert f.loc["B", "rate_coordinates"] == 0.5 and f.loc["B", "responds_to_other"] == 0.5
+    assert f.loc["A", "rate_question"] == 0.5
+    for name in set(COMM_FEATURES) | set(COLLAB_FEATURES):
+        assert name in f.columns, name

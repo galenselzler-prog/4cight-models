@@ -216,7 +216,7 @@ def labeling_setup(ls_url: str, ls_token: str, bucket: str | None = None, s3=Non
         ("4Cight utterances", "utterance_config.xml", "labeling/utterance-tasks/",
          "Label each utterance: speaker, sentiment, move, CT skill, argument, idea link (guide v1.2)."),
         ("4Cight segment ratings", "rating_config.xml", "labeling/rating-tasks/",
-         "Teachers: rate each student's critical thinking and creativity, 1-4 or NE (guide v1.2)."),
+         "Teachers: rate each student's communication, collaboration, critical thinking and creativity, 1-4 or NE (guide v1.2)."),
     ]:
         project = existing.get(title) or ls.call("POST", "/api/projects", json={
             "title": title, "description": desc, "label_config": (here / config).read_text(),
@@ -321,7 +321,7 @@ def import_labels(utterance_export: str | Path, rating_export: str | Path | None
     if rating_export:
         for t in json.loads(Path(rating_export).read_text()):
             d, anns = t["data"], [a for a in t.get("annotations", []) if not a.get("was_cancelled")]
-            for skill in ("critical_thinking", "creativity"):
+            for skill in L.RATED_SKILLS:
                 given = [(_values(a).get(skill) or [None])[0] for a in anns]
                 given = [g for g in given if g]
                 gt = [(_values(a).get(skill) or [None])[0] for a in anns if a.get("ground_truth")]

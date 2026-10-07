@@ -23,6 +23,7 @@ import numpy as np
 import torch
 
 from . import idea_model, utterance_model
+from . import labels as L
 from .creativity_metrics import IdeaBank
 from .licenses import license_for
 
@@ -84,7 +85,8 @@ def export(run_dir, out_dir, log=print) -> dict:
     itok.backend_tokenizer.save(str(out / "idea.tokenizer.json"))
     log(f"  ONNX verified (max diff {max(d1, d2):.2e})")
 
-    for f in ("scorer_critical_thinking.json", "scorer_creativity.json"):
+    scorer_files = [f"scorer_{k}.json" for k in L.RATED_SKILLS if (run / f"scorer_{k}.json").exists()]
+    for f in scorer_files:
         shutil.copy(run / f, out / f)
     bank = IdeaBank.load(run / "idea_bank")
     (out / "idea_bank.json").write_text(json.dumps({
@@ -100,7 +102,7 @@ def export(run_dir, out_dir, log=print) -> dict:
         "labels": utterance_model.HEADS,
         "maxLen": {"utterance": utterance_model.MAX_LEN, "idea": idea_model.MAX_LEN},
         "ideaThresholds": th,
-        "scorers": ["scorer_critical_thinking.json", "scorer_creativity.json"],
+        "scorers": scorer_files,
         "ideaBank": "idea_bank.json",
     }
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2))

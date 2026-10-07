@@ -29,6 +29,11 @@ UTTERANCE_HEADS = {
     "argument": ARGUMENT,
 }
 
+#: Skills teachers rate per student per segment. Critical thinking and
+#: creativity come from the idea/argument evidence; communication and
+#: collaboration come from participation and conversational moves.
+RATED_SKILLS = ["communication", "collaboration", "critical_thinking", "creativity"]
+
 #: Rubric levels for segment ratings; "NE" = not enough evidence (excluded from training).
 LEVELS = [1, 2, 3, 4]
 NOT_ENOUGH_EVIDENCE = "NE"
