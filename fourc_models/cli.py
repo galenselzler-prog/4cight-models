@@ -14,6 +14,7 @@
   fourc labeling-setup --url https://fourcight-labeling.onrender.com   # once (needs LABEL_STUDIO_TOKEN, R2_*)
   fourc upload-models dist/emotion/emotion.int8.onnx dist/speaker/speaker.onnx   # app models -> private R2
   fourc prep-labeling                                               # new recordings -> labeling tasks
+  fourc meeting-report --ami data/corpora/ami --icsi data/corpora/icsi/ICSI --out runs/meetings   # behavior features on public meetings
   fourc import-labels --utterances utt.json --ratings ratings.json --out data/labeled --grade-band 3-5
 """
 
@@ -73,6 +74,10 @@ def main(argv=None):
     um.add_argument("files", nargs="+")
     pl = sub.add_parser("prep-labeling", help="turn new research recordings in R2 into labeling tasks")
     pl.add_argument("--bucket", default=None)
+    mr = sub.add_parser("meeting-report", help="behavior features on the public AMI/ICSI meeting corpora (annotations only)")
+    mr.add_argument("--ami", default=None, help="folder from ami_public_manual_1.6.2.zip")
+    mr.add_argument("--icsi", default=None, help="the ICSI folder inside ICSI_core_NXT.zip")
+    mr.add_argument("--out", required=True)
     il = sub.add_parser("import-labels", help="Label Studio JSON exports -> training CSVs")
     il.add_argument("--utterances", required=True, help="export of the '4Cight utterances' project (JSON)")
     il.add_argument("--ratings", default=None, help="export of the '4Cight segment ratings' project (JSON)")
@@ -116,6 +121,15 @@ def main(argv=None):
     elif a.cmd == "prep-labeling":
         from .labeling import prep_labeling
         prep_labeling(a.bucket)
+    elif a.cmd == "meeting-report":
+        import pandas as pd
+        from . import meetings
+        if not (a.ami or a.icsi):
+            p.error("give --ami and/or --icsi")
+        parts = ([meetings.load_ami(a.ami)] if a.ami else []) + ([meetings.load_icsi(a.icsi)] if a.icsi else [])
+        per_speaker, per_meeting = meetings.behavior_features(pd.concat(parts, ignore_index=True))
+        print(meetings.write_report(per_speaker, per_meeting, a.out))
+        print(f"\nWrote {a.out}/report.txt, meetings.csv, speakers.csv")
     elif a.cmd == "import-labels":
         from .labeling import import_labels
         import_labels(a.utterances, a.ratings, a.out, default_grade_band=a.grade_band)
