@@ -136,7 +136,7 @@ only, never uploads or saves them. Keeping them between sessions needs a legal/p
 2. **Prepare tasks.** `fourc prep-labeling` cuts each new recording into one clip and task per
    utterance, plus one rating task per student, and writes them next to the recordings in R2.
 3. **Label.** Label Studio (Render service `4cight-labeling`, from `render.yaml`) shows the tasks.
-   Run `fourc labeling-setup --url https://4cight-labeling.onrender.com` once to create the two
+   Run `fourc labeling-setup --url https://fourcight-labeling.onrender.com` once to create the two
    projects ("4Cight utterances", "4Cight segment ratings") and connect them to R2. Up to two
    labelers per task; mark the reviewed answer as ground truth when they disagree.
 4. **Import.** Export each project as JSON, then

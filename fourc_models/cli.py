@@ -11,7 +11,7 @@
   fourc convert-speaker --out dist/speaker                  # downloads the open ECAPA model once
   fourc synth-voices --out voices/synthetic                 # macOS text-to-speech test voices
   fourc speaker-eval --model dist/speaker/speaker.onnx --voices voices/synthetic
-  fourc labeling-setup --url https://4cight-labeling.onrender.com   # once (needs LABEL_STUDIO_TOKEN, R2_*)
+  fourc labeling-setup --url https://fourcight-labeling.onrender.com   # once (needs LABEL_STUDIO_TOKEN, R2_*)
   fourc upload-models dist/emotion/emotion.int8.onnx dist/speaker/speaker.onnx   # app models -> private R2
   fourc prep-labeling                                               # new recordings -> labeling tasks
   fourc import-labels --utterances utt.json --ratings ratings.json --out data/labeled --grade-band 3-5

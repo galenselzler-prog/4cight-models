@@ -23,9 +23,9 @@ services:
       - key: POSTGRE_NAME
         fromDatabase: { name: 4cight-labeling-db, property: database }
       - key: LABEL_STUDIO_HOST
-        value: https://4cight-labeling.onrender.com
+        value: https://fourcight-labeling.onrender.com
       - key: CSRF_TRUSTED_ORIGINS
-        value: https://4cight-labeling.onrender.com
+        value: https://fourcight-labeling.onrender.com
       - key: LABEL_STUDIO_USERNAME
         sync: false
       - key: LABEL_STUDIO_PASSWORD

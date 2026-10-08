@@ -13,3 +13,7 @@ __pycache__/
 .venv/
 voices/
 .DS_Store
+
+# Local secrets (R2 keys, Label Studio token)
+.env
+.env.*
