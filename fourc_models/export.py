@@ -114,12 +114,14 @@ def _run_onnx(path: Path, tok, texts: list[str], max_len: int, batch: int = 32) 
 
 def _quantize(fp32: Path) -> Path:
     """Weight-only int8. Gather is included because the token-embedding table is
-    most of a DeBERTa-v3 model (128k-token vocabulary)."""
+    most of a DeBERTa-v3 model (128k-token vocabulary). Per-channel scales keep
+    small encoders close to fp32 (MiniLM: mean cosine 0.947 per-tensor, 0.990
+    per-channel, same 23 MB)."""
     from onnxruntime.quantization import QuantType, quantize_dynamic
 
     q = fp32.with_name(fp32.stem + ".int8.onnx")
     quantize_dynamic(str(fp32), str(q), weight_type=QuantType.QInt8,
-                     op_types_to_quantize=["MatMul", "Gemm", "Gather"])
+                     op_types_to_quantize=["MatMul", "Gemm", "Gather"], per_channel=True)
     return q
 
 
