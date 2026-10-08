@@ -16,6 +16,8 @@
   fourc prep-labeling                                               # new recordings -> labeling tasks
   fourc meeting-report --ami data/corpora/ami --icsi data/corpora/icsi/ICSI --out runs/meetings   # behavior features on public meetings
   fourc meeting-labels --ami data/corpora/ami --icsi data/corpora/icsi/ICSI --out runs/meetings   # weak utterance labels for pretraining
+  fourc pretrain-utterance --labels runs/meetings/meeting_weak_labels.csv --out runs/pretrain --base microsoft/deberta-v3-small   # start from meetings
+  fourc train --data <classroom data> --out runs/x --base microsoft/deberta-v3-small --init-utterance runs/pretrain/   # then fine-tune
   fourc export-norms --ami data/corpora/ami --icsi data/corpora/icsi/ICSI --out runs/meetings/meeting-norms.json --ts ../ils-app/src/engine/reference/meetingNorms.ts
   fourc import-labels --utterances utt.json --ratings ratings.json --out data/labeled --grade-band 3-5
 """
@@ -45,6 +47,16 @@ def main(argv=None):
     t.add_argument("--idea-epochs", type=int, default=6)
     t.add_argument("--device", default=None, help="cpu, cuda or mps (default: best available)")
     t.add_argument("--seed", type=int, default=0)
+    t.add_argument("--init-utterance", default=None, help="start the utterance model from this folder (see pretrain-utterance)")
+    pu = sub.add_parser("pretrain-utterance", help="pretrain the utterance model on the weak AMI/ICSI labels")
+    pu.add_argument("--labels", required=True, help="meeting_weak_labels.csv from meeting-labels")
+    pu.add_argument("--out", required=True)
+    pu.add_argument("--base", default="tiny", help='HF id or local folder; "tiny" = offline test model')
+    pu.add_argument("--epochs", type=int, default=1)
+    pu.add_argument("--max-train", type=int, default=None, help="random sample of the training rows (quick runs)")
+    pu.add_argument("--max-eval", type=int, default=5000, help="rows to score validation/test on (0 = all)")
+    pu.add_argument("--device", default=None)
+    pu.add_argument("--seed", type=int, default=0)
     e = sub.add_parser("export", help="export a run to ONNX + JSON for the app")
     e.add_argument("--run", required=True)
     e.add_argument("--out", required=True)
@@ -114,8 +126,12 @@ def main(argv=None):
     elif a.cmd == "train":
         from .pipeline import run
         rep = run(a.data, a.out, base=a.base, idea_base=a.idea_base, epochs=a.epochs, idea_epochs=a.idea_epochs,
-                  device=a.device, seed=a.seed)
+                  device=a.device, seed=a.seed, init_utterance=a.init_utterance)
         print(json.dumps({k: rep[k] for k in ("critical_thinking_scorer", "creativity_scorer", "communication_scorer", "collaboration_scorer")}, indent=2))
+    elif a.cmd == "pretrain-utterance":
+        from .weak_pretrain import pretrain
+        pretrain(a.labels, a.out, base=a.base, epochs=a.epochs, max_train=a.max_train,
+                 max_eval=a.max_eval or None, device=a.device, seed=a.seed)
     elif a.cmd == "export":
         from .export import export
         export(a.run, a.out, data_dir=a.data, int8=not a.no_int8)

@@ -53,7 +53,8 @@ def _fit_scorer(feats, ratings, skill, names, key, split_of, log):
 
 
 def run(data_dir, out_dir, base: str = "tiny", idea_base: str | None = None, epochs: int = 4,
-        idea_epochs: int = 6, device: str | None = None, seed: int = 0, log=print) -> dict:
+        idea_epochs: int = 6, device: str | None = None, seed: int = 0, log=print,
+        init_utterance: str | None = None) -> dict:
     t0 = time.time()
     data_dir, out = Path(data_dir), Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -65,7 +66,8 @@ def run(data_dir, out_dir, base: str = "tiny", idea_base: str | None = None, epo
         f"{len(pairs)} pairs, {len(ratings)} ratings")
 
     log("[1/5] utterance model")
-    um_val = utterance_model.train(sp, base, out / "utterance", epochs=epochs, seed=seed, device=device, log=log)
+    um_val = utterance_model.train(sp, base, out / "utterance", epochs=epochs, seed=seed, device=device, log=log,
+                                    init_from=init_utterance)
     um, utok = utterance_model.load(out / "utterance", device)
     um_test = utterance_model.evaluate(um, utok, sp.test)
 

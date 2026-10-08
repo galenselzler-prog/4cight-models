@@ -42,30 +42,45 @@ def _texts(df: pd.DataFrame) -> list[str]:
     return [model_input_text(t, c) for t, c in zip(df["text"], df["context_prev"])]
 
 
+#: Target for "label unknown" (an empty cell, as in the weak meeting labels). Ignored by the loss
+#: and the metrics, so a head with no label for an utterance is simply not trained on it.
+UNKNOWN = -100
+
+
 def _targets(df: pd.DataFrame) -> dict[str, torch.Tensor]:
-    return {h: torch.tensor([v.index(x) for x in df[h]]) for h, v in HEADS.items()}
+    return {h: torch.tensor([v.index(x) if isinstance(x, str) and x != "" else UNKNOWN for x in df[h]])
+            for h, v in HEADS.items()}
 
 
 def _class_weights(y: torch.Tensor, n: int) -> torch.Tensor:
     """Inverse square-root frequency: rare labels (e.g. self_regulation) count
     more without letting a handful of examples dominate."""
-    counts = torch.bincount(y, minlength=n).float().clamp(min=1)
+    counts = torch.bincount(y[y != UNKNOWN], minlength=n).float().clamp(min=1)
     w = counts.sum() / counts.sqrt()
     return w / w.mean()
 
 
 def train(splits, base: str, out_dir: str | Path, epochs: int = 4, lr: float = 3e-5, batch_size: int = 16,
-          seed: int = 0, device: str | None = None, log=print) -> dict:
+          seed: int = 0, device: str | None = None, log=print, init_from: str | Path | None = None) -> dict:
     """Fine-tunes on splits.train, keeps the epoch with the best validation
-    mean macro-F1, saves the model to out_dir, returns validation metrics."""
+    mean macro-F1, saves the model to out_dir, returns validation metrics.
+
+    init_from: start from an already trained utterance model (e.g. one pretrained on the
+    weak meeting labels) instead of the plain base model. Empty labels are skipped."""
     random.seed(seed); np.random.seed(seed); torch.manual_seed(seed)
     dev = pick_device(device)
-    tok, enc = load_base(base, texts_for_tiny=_texts(splits.train), seed=seed)
-    if base == "tiny" and lr < 1e-3:
-        lr = 1e-3  # randomly initialised tiny model needs a larger step
-    model = UtteranceModel(enc).to(dev)
+    if init_from:
+        model, tok = load(init_from, dev)
+        base = json.loads((Path(init_from) / "config.json").read_text())["base"]
+        model.train()
+    else:
+        tok, enc = load_base(base, texts_for_tiny=_texts(splits.train), seed=seed)
+        if base == "tiny" and lr < 1e-3:
+            lr = 1e-3  # randomly initialised tiny model needs a larger step
+        model = UtteranceModel(enc).to(dev)
     X, Y = _texts(splits.train), _targets(splits.train)
-    losses = {h: nn.CrossEntropyLoss(weight=_class_weights(Y[h], len(v)).to(dev)) for h, v in HEADS.items()}
+    losses = {h: nn.CrossEntropyLoss(weight=_class_weights(Y[h], len(v)).to(dev), ignore_index=UNKNOWN)
+              for h, v in HEADS.items()}
     opt = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=0.01)
     steps = epochs * math.ceil(len(X) / batch_size)
     sched = torch.optim.lr_scheduler.LambdaLR(opt, lambda s: min(1.0, (s + 1) / max(1, steps // 10)) * max(0.0, 1 - s / steps))
@@ -79,7 +94,11 @@ def train(splits, base: str, out_dir: str | Path, epochs: int = 4, lr: float = 3
             idx = order[i:i + batch_size]
             b = tok([X[j] for j in idx], padding=True, truncation=True, max_length=MAX_LEN, return_tensors="pt").to(dev)
             out = model(b["input_ids"], b["attention_mask"])
-            loss = sum(losses[h](o, Y[h][idx].to(dev)) for h, o in zip(HEADS, out))
+            # a head only learns from the utterances that have a label for it
+            terms = [losses[h](o, Y[h][idx].to(dev)) for h, o in zip(HEADS, out) if (Y[h][idx] != UNKNOWN).any()]
+            if not terms:
+                continue
+            loss = sum(terms)
             opt.zero_grad(); loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             opt.step(); sched.step()
@@ -123,11 +142,17 @@ def evaluate(model, tok, df: pd.DataFrame, device=None) -> dict:
     p = predict_proba(model, tok, df, device)
     res = {}
     for h, v in HEADS.items():
-        y = [v.index(x) for x in df[h]]
-        yhat = p[h].argmax(1).tolist()
+        known = np.array([isinstance(x, str) and x != "" for x in df[h]], dtype=bool)
+        if not known.any():
+            res[h] = {"accuracy": None, "macro_f1": 0.0, "kappa": None, "n": 0}
+            continue
+        y = [v.index(x) for x, k in zip(df[h], known) if k]
+        yhat = p[h].argmax(1)[known].tolist()
+        # macro over classes that occur (in the labels or the predictions): a class with no
+        # examples at all (e.g. 'off_task' in the weak meeting labels) must not count as 0.
         res[h] = {
             "accuracy": round(accuracy_score(y, yhat), 4),
-            "macro_f1": round(f1_score(y, yhat, average="macro", labels=list(range(len(v))), zero_division=0), 4),
+            "macro_f1": round(f1_score(y, yhat, average="macro", labels=sorted(set(y) | set(yhat)), zero_division=0), 4),
             "kappa": round(cohen_kappa_score(y, yhat), 4) if len(set(y)) > 1 else None,
             "n": len(y),
         }
