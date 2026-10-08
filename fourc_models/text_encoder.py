@@ -47,14 +47,15 @@ def load_base(base: str, texts_for_tiny: list[str] | None = None, seed: int = 0)
     tok = AutoTokenizer.from_pretrained(base)
     if "[CTX]" not in tok.get_vocab():
         tok.add_special_tokens({"additional_special_tokens": ["[CTX]"]})
-    enc = AutoModel.from_pretrained(base)
+    # Transformers 5 loads weights in their stored dtype (often fp16); train in fp32.
+    enc = AutoModel.from_pretrained(base).float()
     enc.resize_token_embeddings(len(tok))
     return tok, enc
 
 
 def reload_encoder(folder: str | Path):
     folder = Path(folder)
-    return AutoTokenizer.from_pretrained(folder / "tokenizer"), AutoModel.from_pretrained(folder / "encoder")
+    return AutoTokenizer.from_pretrained(folder / "tokenizer"), AutoModel.from_pretrained(folder / "encoder").float()
 
 
 def mean_pool(hidden: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
