@@ -15,6 +15,7 @@
   fourc upload-models dist/emotion/emotion.int8.onnx dist/speaker/speaker.onnx   # app models -> private R2
   fourc prep-labeling                                               # new recordings -> labeling tasks
   fourc meeting-report --ami data/corpora/ami --icsi data/corpora/icsi/ICSI --out runs/meetings   # behavior features on public meetings
+  fourc meeting-labels --ami data/corpora/ami --icsi data/corpora/icsi/ICSI --out runs/meetings   # weak utterance labels for pretraining
   fourc export-norms --ami data/corpora/ami --icsi data/corpora/icsi/ICSI --out runs/meetings/meeting-norms.json --ts ../ils-app/src/engine/reference/meetingNorms.ts
   fourc import-labels --utterances utt.json --ratings ratings.json --out data/labeled --grade-band 3-5
 """
@@ -79,6 +80,10 @@ def main(argv=None):
     mr.add_argument("--ami", default=None, help="folder from ami_public_manual_1.6.2.zip")
     mr.add_argument("--icsi", default=None, help="the ICSI folder inside ICSI_core_NXT.zip")
     mr.add_argument("--out", required=True)
+    ml = sub.add_parser("meeting-labels", help="AMI/ICSI annotations -> weak utterance labels (move, argument, ct_skill, sentiment) + report")
+    ml.add_argument("--ami", default=None)
+    ml.add_argument("--icsi", default=None)
+    ml.add_argument("--out", required=True)
     en = sub.add_parser("export-norms", help="build the real-meeting reference tables the app scores groups against")
     en.add_argument("--ami", default=None)
     en.add_argument("--icsi", default=None)
@@ -159,6 +164,10 @@ def main(argv=None):
         from .speaker_eval import synth_voices
         synth_voices(a.out, n_voices=a.voices)
         print("Synthetic voices are for testing only; real accuracy needs real, consented recordings.")
+    elif a.cmd == "meeting-labels":
+        from .meeting_labels import export
+        df = export(a.ami, a.icsi, a.out)
+        print(f"wrote {len(df):,} weak-labeled utterances to {a.out}/meeting_weak_labels.csv and {a.out}/labels_report.txt")
     elif a.cmd == "speaker-eval":
         from .speaker_eval import evaluate
         evaluate(a.model, a.voices, out=a.report, sessions=a.sessions, group_size=a.group_size, snr_db=a.snr)
