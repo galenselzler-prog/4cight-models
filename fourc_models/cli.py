@@ -15,6 +15,7 @@
   fourc upload-models dist/emotion/emotion.int8.onnx dist/speaker/speaker.onnx   # app models -> private R2
   fourc prep-labeling                                               # new recordings -> labeling tasks
   fourc meeting-report --ami data/corpora/ami --icsi data/corpora/icsi/ICSI --out runs/meetings   # behavior features on public meetings
+  fourc export-norms --ami data/corpora/ami --icsi data/corpora/icsi/ICSI --out runs/meetings/meeting-norms.json --ts ../ils-app/src/engine/reference/meetingNorms.ts
   fourc import-labels --utterances utt.json --ratings ratings.json --out data/labeled --grade-band 3-5
 """
 
@@ -78,6 +79,11 @@ def main(argv=None):
     mr.add_argument("--ami", default=None, help="folder from ami_public_manual_1.6.2.zip")
     mr.add_argument("--icsi", default=None, help="the ICSI folder inside ICSI_core_NXT.zip")
     mr.add_argument("--out", required=True)
+    en = sub.add_parser("export-norms", help="build the real-meeting reference tables the app scores groups against")
+    en.add_argument("--ami", default=None)
+    en.add_argument("--icsi", default=None)
+    en.add_argument("--out", required=True, help="JSON file")
+    en.add_argument("--ts", default=None, help="also write the TypeScript module for the app")
     il = sub.add_parser("import-labels", help="Label Studio JSON exports -> training CSVs")
     il.add_argument("--utterances", required=True, help="export of the '4Cight utterances' project (JSON)")
     il.add_argument("--ratings", default=None, help="export of the '4Cight segment ratings' project (JSON)")
@@ -130,6 +136,18 @@ def main(argv=None):
         per_speaker, per_meeting = meetings.behavior_features(pd.concat(parts, ignore_index=True))
         print(meetings.write_report(per_speaker, per_meeting, a.out))
         print(f"\nWrote {a.out}/report.txt, meetings.csv, speakers.csv")
+    elif a.cmd == "export-norms":
+        from . import behavior, meetings
+        if not (a.ami or a.icsi):
+            p.error("give --ami and/or --icsi")
+        norms = behavior.build_norms(
+            meetings.one_mic_meetings(a.ami, a.icsi),
+            source="AMI Meeting Corpus + ICSI Meeting Corpus, CC BY 4.0 (word timings only)")
+        behavior.dump_norms(norms, a.out)
+        if a.ts:
+            Path(a.ts).parent.mkdir(parents=True, exist_ok=True)
+            Path(a.ts).write_text(behavior.norms_as_typescript(norms))
+        print(f"{norms['meetings']} meetings; rows per band:", {b['name']: b['rows'] for b in norms['bands']})
     elif a.cmd == "import-labels":
         from .labeling import import_labels
         import_labels(a.utterances, a.ratings, a.out, default_grade_band=a.grade_band)

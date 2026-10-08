@@ -367,3 +367,39 @@ def write_report(per_speaker: pd.DataFrame, per_meeting: pd.DataFrame, out_dir: 
     text = "\n".join(lines)
     (out / "report.txt").write_text(text + "\n")
     return text
+
+
+# --- one-microphone speech from the corpora (for fourc_models.behavior) --------
+
+def one_mic_meetings(ami_root=None, icsi_root=None) -> dict[str, list[tuple[str, float, float]]]:
+    """meeting id -> speech segments (speaker, start_s, end_s) as ONE microphone
+    would hear them: each person's words are joined into stretches of speech, and
+    where people overlap the later start is trimmed (see behavior.collapse_overlaps).
+    Only word timings are used; no text, no audio."""
+    from . import behavior as B
+
+    out: dict[str, list] = {}
+
+    def add(meeting: str, per_speaker: dict[str, list[tuple[float, float]]]):
+        segs = [(spk, s, e) for spk, words in per_speaker.items() for s, e in B.bursts(words)]
+        out[meeting] = B.collapse_overlaps(segs)
+
+    if ami_root:
+        root = Path(ami_root)
+        by: dict[str, dict[str, list]] = {}
+        for f in sorted((root / "words").glob("*.words.xml")):
+            meeting, agent = f.name.split(".")[:2]
+            w = _Words(f)
+            by.setdefault(meeting, {})[agent] = [(s, e) for t, s, e in zip(w.text, w.start, w.end) if t and s == s]
+        for meeting, per in by.items():
+            add(meeting, per)
+    if icsi_root:
+        root = Path(icsi_root)
+        by = {}
+        for f in sorted((root / "Words").glob("*.words.xml")):
+            meeting, chan = f.name.split(".")[:2]
+            w = _Words(f)
+            by.setdefault(meeting, {})[chan] = [(s, e) for t, s, e in zip(w.text, w.start, w.end) if t and s == s]
+        for meeting, per in by.items():
+            add(meeting, per)
+    return out

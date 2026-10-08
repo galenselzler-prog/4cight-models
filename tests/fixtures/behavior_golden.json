@@ -1,0 +1,437 @@
+{
+ "cases": {
+  "ignores_strangers": {
+   "segments": [
+    [
+     "a",
+     0,
+     30
+    ],
+    [
+     "x",
+     30,
+     60
+    ],
+    [
+     "b",
+     61,
+     90
+    ],
+    [
+     "a",
+     91,
+     120
+    ]
+   ],
+   "speakers": [
+    "a",
+    "b"
+   ]
+  },
+  "one_dominates": {
+   "segments": [
+    [
+     "a",
+     0,
+     60
+    ],
+    [
+     "b",
+     61,
+     66
+    ],
+    [
+     "a",
+     67,
+     130
+    ],
+    [
+     "c",
+     131,
+     135
+    ],
+    [
+     "a",
+     136,
+     200
+    ],
+    [
+     "d",
+     203,
+     206
+    ],
+    [
+     "a",
+     207,
+     290
+    ]
+   ],
+   "speakers": [
+    "a",
+    "b",
+    "c",
+    "d"
+   ]
+  },
+  "pauses_and_merges": {
+   "segments": [
+    [
+     "a",
+     0,
+     5
+    ],
+    [
+     "a",
+     6.9,
+     10
+    ],
+    [
+     "b",
+     10.5,
+     20
+    ],
+    [
+     "a",
+     25,
+     30
+    ],
+    [
+     "a",
+     33.5,
+     40
+    ],
+    [
+     "b",
+     41,
+     47
+    ]
+   ],
+   "speakers": [
+    "a",
+    "b"
+   ]
+  },
+  "silent_member": {
+   "segments": [
+    [
+     "a",
+     0,
+     20
+    ],
+    [
+     "b",
+     21,
+     41
+    ],
+    [
+     "a",
+     42,
+     60
+    ],
+    [
+     "b",
+     61,
+     80
+    ],
+    [
+     "a",
+     81,
+     100
+    ]
+   ],
+   "speakers": [
+    "a",
+    "b",
+    "c"
+   ]
+  },
+  "two_alternate": {
+   "segments": [
+    [
+     "a",
+     0,
+     8
+    ],
+    [
+     "b",
+     8.5,
+     16
+    ],
+    [
+     "a",
+     16.5,
+     24
+    ],
+    [
+     "b",
+     25,
+     33
+    ],
+    [
+     "a",
+     33.2,
+     41
+    ],
+    [
+     "b",
+     42,
+     50
+    ]
+   ],
+   "speakers": [
+    "a",
+    "b"
+   ]
+  }
+ },
+ "expected": {
+  "ignores_strangers": {
+   "band": "short",
+   "group": {
+    "balance_entropy": 0.9144612916935675,
+    "minutes": 2.0,
+    "participation_rate": 1.0,
+    "reply_rate": 0.5,
+    "silence_share": 0.2666666666666667,
+    "talk_s": 88.0,
+    "top_share": 0.6704545454545454,
+    "turns_per_min": 1.5
+   },
+   "group_score": {
+    "collaboration": 4.158237216571619,
+    "communication": 6.780861463935914
+   },
+   "person_scores": {
+    "a": {
+     "collaboration": 3.9250000000000003,
+     "communication": 6.545872433108173
+    },
+    "b": {
+     "collaboration": 2.3499999999999996,
+     "communication": 5.870872433108173
+    }
+   },
+   "speakers": {
+    "a": {
+     "reply_rate": 0.5,
+     "share_balance": 0.6590909090909092,
+     "talk_share": 0.6704545454545454,
+     "turns": 2,
+     "turns_per_min": 1.0
+    },
+    "b": {
+     "reply_rate": 0.0,
+     "share_balance": 0.6590909090909091,
+     "talk_share": 0.32954545454545453,
+     "turns": 1,
+     "turns_per_min": 0.5
+    }
+   }
+  },
+  "one_dominates": {
+   "band": "short",
+   "group": {
+    "balance_entropy": 0.16001550034775736,
+    "minutes": 4.833333333333333,
+    "participation_rate": 0.5,
+    "reply_rate": 0.8333333333333334,
+    "silence_share": 0.02758620689655178,
+    "talk_s": 282.0,
+    "top_share": 0.9574468085106383,
+    "turns_per_min": 1.4482758620689655
+   },
+   "group_score": {
+    "collaboration": 4.746884453632132,
+    "communication": 1.1945956803068711
+   },
+   "person_scores": {
+    "a": {
+     "collaboration": 4.591942970822281,
+     "communication": 3.2073275862068966
+    },
+    "b": {
+     "collaboration": 5.72112022413607,
+     "communication": 3.6764168774694927
+    },
+    "c": {
+     "collaboration": 5.72112022413607,
+     "communication": 3.6036548200689613
+    },
+    "d": {
+     "collaboration": 2.0086202241360693,
+     "communication": 3.5039944050658804
+    }
+   },
+   "speakers": {
+    "a": {
+     "reply_rate": 0.75,
+     "share_balance": 0,
+     "talk_share": 0.9574468085106383,
+     "turns": 4,
+     "turns_per_min": 0.8275862068965518
+    },
+    "b": {
+     "reply_rate": 1.0,
+     "share_balance": 0.07092198581560283,
+     "talk_share": 0.01773049645390071,
+     "turns": 1,
+     "turns_per_min": 0.20689655172413796
+    },
+    "c": {
+     "reply_rate": 1.0,
+     "share_balance": 0.05673758865248224,
+     "talk_share": 0.014184397163120567,
+     "turns": 1,
+     "turns_per_min": 0.20689655172413796
+    },
+    "d": {
+     "reply_rate": 0.0,
+     "share_balance": 0.04255319148936165,
+     "talk_share": 0.010638297872340425,
+     "turns": 1,
+     "turns_per_min": 0.20689655172413796
+    }
+   }
+  },
+  "pauses_and_merges": {
+   "band": "short",
+   "group": {
+    "balance_entropy": 0.9901351625721174,
+    "minutes": 0.7833333333333333,
+    "participation_rate": 1.0,
+    "reply_rate": 0.5,
+    "silence_share": 0.2531914893617021,
+    "talk_s": 35.1,
+    "top_share": 0.5584045584045584,
+    "turns_per_min": 6.382978723404255
+   },
+   "group_score": {
+    "collaboration": 5.498940593563158,
+    "communication": 8.025527862147275
+   },
+   "person_scores": {
+    "a": {
+     "collaboration": 5.446733345470239,
+     "communication": 9.457321909666293
+    },
+    "b": {
+     "collaboration": 8.569406725495295,
+     "communication": 8.867495289691346
+    }
+   },
+   "speakers": {
+    "a": {
+     "reply_rate": 0.0,
+     "share_balance": 0.8831908831908832,
+     "talk_share": 0.5584045584045584,
+     "turns": 3,
+     "turns_per_min": 3.8297872340425534
+    },
+    "b": {
+     "reply_rate": 1.0,
+     "share_balance": 0.8831908831908831,
+     "talk_share": 0.44159544159544156,
+     "turns": 2,
+     "turns_per_min": 2.5531914893617023
+    }
+   }
+  },
+  "silent_member": {
+   "band": "short",
+   "group": {
+    "balance_entropy": 0.6148343591439297,
+    "minutes": 1.6666666666666667,
+    "participation_rate": 0.6666666666666666,
+    "reply_rate": 1.0,
+    "silence_share": 0.040000000000000036,
+    "talk_s": 96.0,
+    "top_share": 0.59375,
+    "turns_per_min": 3.0
+   },
+   "group_score": {
+    "collaboration": 6.784683805788354,
+    "communication": 4.72166137089013
+   },
+   "person_scores": {
+    "a": {
+     "collaboration": 5.544998875005624,
+     "communication": 6.516066003588664
+    },
+    "b": {
+     "collaboration": 7.0975,
+     "communication": 7.166804197448609
+    },
+    "c": {
+     "collaboration": 1.45,
+     "communication": 1.7875
+    }
+   },
+   "speakers": {
+    "a": {
+     "reply_rate": 0.6666666666666666,
+     "share_balance": 0.2187499999999999,
+     "talk_share": 0.59375,
+     "turns": 3,
+     "turns_per_min": 1.7999999999999998
+    },
+    "b": {
+     "reply_rate": 1.0,
+     "share_balance": 0.78125,
+     "talk_share": 0.40625,
+     "turns": 2,
+     "turns_per_min": 1.2
+    },
+    "c": {
+     "reply_rate": 0.0,
+     "share_balance": 0.0,
+     "talk_share": 0.0,
+     "turns": 0,
+     "turns_per_min": 0.0
+    }
+   }
+  },
+  "two_alternate": {
+   "band": "short",
+   "group": {
+    "balance_entropy": 0.999986826106434,
+    "minutes": 0.8333333333333334,
+    "participation_rate": 1.0,
+    "reply_rate": 1.0,
+    "silence_share": 0.06400000000000006,
+    "talk_s": 46.8,
+    "top_share": 0.5021367521367521,
+    "turns_per_min": 7.199999999999999
+   },
+   "group_score": {
+    "collaboration": 8.957511803891055,
+    "communication": 8.603952991452992
+   },
+   "person_scores": {
+    "a": {
+     "collaboration": 6.724822236860687,
+     "communication": 9.641363240942784
+    },
+    "b": {
+     "collaboration": 9.087323361855063,
+     "communication": 9.641363240942784
+    }
+   },
+   "speakers": {
+    "a": {
+     "reply_rate": 0.6666666666666666,
+     "share_balance": 0.9957264957264956,
+     "talk_share": 0.4978632478632478,
+     "turns": 3,
+     "turns_per_min": 3.5999999999999996
+    },
+    "b": {
+     "reply_rate": 1.0,
+     "share_balance": 0.9957264957264957,
+     "talk_share": 0.5021367521367521,
+     "turns": 3,
+     "turns_per_min": 3.5999999999999996
+    }
+   }
+  }
+ }
+}
