@@ -66,6 +66,32 @@ def test_export_onnx_runs(run_dir):
     assert json.loads((out / "idea_bank.json").read_text())["activities"]
 
 
+def test_export_int8_checked_and_shipped(run_dir, tmp_path):
+    import onnxruntime as ort
+    from fourc_models.export import MIN_INT8_AGREEMENT, export
+
+    man = export(run_dir / "run", tmp_path, log=lambda *_: None, data_dir=run_dir / "data")
+    for name in ("utterance.int8.onnx", "idea.int8.onnx"):
+        assert (tmp_path / name).exists(), name
+        assert man["sizes"][name] < man["sizes"][name.replace(".int8", "")]
+    agree = man["checks"]["utterance_int8_top_label_agreement"]
+    assert set(agree) == {"sentiment", "move", "ct_skill", "argument"}
+    assert man["checks"]["int8_checked_on"].endswith("test utterances")
+    shipped = man["models"][0]["file"]
+    assert shipped == ("utterance.int8.onnx" if min(agree.values()) >= MIN_INT8_AGREEMENT else "utterance.onnx")
+    for m in man["models"]:
+        assert (tmp_path / m["file"]).stat().st_size == m["sizeBytes"]
+        ort.InferenceSession(str(tmp_path / m["file"]))  # loads
+
+
+def test_export_no_int8(run_dir, tmp_path):
+    from fourc_models.export import export
+
+    man = export(run_dir / "run", tmp_path, log=lambda *_: None, int8=False)
+    assert [m["file"] for m in man["models"]] == ["utterance.onnx", "idea.onnx"]
+    assert not list(tmp_path.glob("*.int8.onnx"))
+
+
 def test_scorer_json_roundtrip_and_ne(tmp_path):
     rng = np.random.default_rng(0)
     X = pd.DataFrame({"a": rng.normal(size=200), "n_turns": 10})

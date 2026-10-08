@@ -45,6 +45,8 @@ def main(argv=None):
     e = sub.add_parser("export", help="export a run to ONNX + JSON for the app")
     e.add_argument("--run", required=True)
     e.add_argument("--out", required=True)
+    e.add_argument("--data", default=None, help="training data folder: check int8 on its test utterances")
+    e.add_argument("--no-int8", action="store_true", help="ship full-precision ONNX only")
     m = sub.add_parser("convert-emotion", help="convert the existing M2 emotion model to ONNX (+ int8)")
     m.add_argument("--model-dir", required=True, help="folder with config.json and model.safetensors")
     m.add_argument("--out", required=True)
@@ -100,7 +102,7 @@ def main(argv=None):
         print(json.dumps({k: rep[k] for k in ("critical_thinking_scorer", "creativity_scorer", "communication_scorer", "collaboration_scorer")}, indent=2))
     elif a.cmd == "export":
         from .export import export
-        export(a.run, a.out)
+        export(a.run, a.out, data_dir=a.data, int8=not a.no_int8)
     elif a.cmd == "labeling-setup":
         import os
         from .labeling import labeling_setup
