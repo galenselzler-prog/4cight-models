@@ -40,10 +40,12 @@ def load_weak(path: str | Path, max_train: int | None = None, max_eval: int | No
 
 
 def pretrain(weak_csv, out_dir, base: str = "tiny", epochs: int = 1, max_train: int | None = None,
-             max_eval: int | None = 5000, device: str | None = None, seed: int = 0, log=print) -> dict:
+             max_eval: int | None = 5000, device: str | None = None, seed: int = 0, log=print,
+             batch_size: int = 16) -> dict:
     sp = load_weak(weak_csv, max_train, max_eval, seed)
     log(f"weak labels: train {len(sp.train):,} / validation {len(sp.validation):,} / test {len(sp.test):,} utterances")
-    val = utterance_model.train(sp, base, Path(out_dir), epochs=epochs, seed=seed, device=device, log=log)
+    val = utterance_model.train(sp, base, Path(out_dir), epochs=epochs, seed=seed, device=device, log=log,
+                           batch_size=batch_size)
     model, tok = utterance_model.load(out_dir, device)
     test = utterance_model.evaluate(model, tok, sp.test)
     report = {"base": base, "epochs": epochs, "train_utterances": len(sp.train), "validation": val, "test": test,

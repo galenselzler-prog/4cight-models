@@ -103,6 +103,8 @@ def train(splits, base: str, out_dir: str | Path, epochs: int = 4, lr: float = 3
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             opt.step(); sched.step()
             total += loss.item() * len(idx)
+            if dev.type == "mps" and (i // batch_size) % 50 == 0:
+                torch.mps.empty_cache()  # Apple GPUs share memory with the Mac; hand back what is free
         metrics = evaluate(model, tok, splits.validation, dev)
         score = float(np.mean([metrics[h]["macro_f1"] for h in HEADS]))
         log(f"  utterance epoch {ep + 1}/{epochs}: train loss {total / len(X):.3f}, val mean macro-F1 {score:.3f}")
@@ -114,7 +116,7 @@ def train(splits, base: str, out_dir: str | Path, epochs: int = 4, lr: float = 3
 
 
 @torch.no_grad()
-def predict_proba(model: UtteranceModel, tok, df: pd.DataFrame, device=None, batch_size: int = 64) -> dict[str, np.ndarray]:
+def predict_proba(model: UtteranceModel, tok, df: pd.DataFrame, device=None, batch_size: int = 32) -> dict[str, np.ndarray]:
     dev = device or next(model.parameters()).device
     model.eval()
     X = _texts(df)

@@ -55,6 +55,7 @@ def main(argv=None):
     pu.add_argument("--epochs", type=int, default=1)
     pu.add_argument("--max-train", type=int, default=None, help="random sample of the training rows (quick runs)")
     pu.add_argument("--max-eval", type=int, default=5000, help="rows to score validation/test on (0 = all)")
+    pu.add_argument("--batch-size", type=int, default=16, help="lower it (8, 4) if the Mac runs out of GPU memory")
     pu.add_argument("--device", default=None)
     pu.add_argument("--seed", type=int, default=0)
     e = sub.add_parser("export", help="export a run to ONNX + JSON for the app")
@@ -131,7 +132,7 @@ def main(argv=None):
     elif a.cmd == "pretrain-utterance":
         from .weak_pretrain import pretrain
         pretrain(a.labels, a.out, base=a.base, epochs=a.epochs, max_train=a.max_train,
-                 max_eval=a.max_eval or None, device=a.device, seed=a.seed)
+                 max_eval=a.max_eval or None, device=a.device, seed=a.seed, batch_size=a.batch_size)
     elif a.cmd == "export":
         from .export import export
         export(a.run, a.out, data_dir=a.data, int8=not a.no_int8)
