@@ -13,7 +13,7 @@
   fourc speaker-eval --model dist/speaker/speaker.onnx --voices voices/synthetic
   fourc labeling-setup --url https://fourcight-labeling.onrender.com   # once (needs LABEL_STUDIO_TOKEN, R2_*)
   fourc upload-models dist/emotion/emotion.int8.onnx dist/speaker/speaker.onnx   # app models -> private R2
-  fourc prep-labeling                                               # new recordings -> labeling tasks
+  fourc prep-labeling [--prelabel runs/pretrain]                    # new recordings -> labeling tasks (optionally pre-filled by a model)
   fourc meeting-report --ami data/corpora/ami --icsi data/corpora/icsi/ICSI --out runs/meetings   # behavior features on public meetings
   fourc meeting-labels --ami data/corpora/ami --icsi data/corpora/icsi/ICSI --out runs/meetings   # weak utterance labels for pretraining
   fourc pretrain-utterance --labels runs/meetings/meeting_weak_labels.csv --out runs/pretrain --base microsoft/deberta-v3-small   # start from meetings
@@ -89,6 +89,7 @@ def main(argv=None):
     um.add_argument("files", nargs="+")
     pl = sub.add_parser("prep-labeling", help="turn new research recordings in R2 into labeling tasks")
     pl.add_argument("--bucket", default=None)
+    pl.add_argument("--prelabel", default=None, help="folder of a trained utterance model (e.g. runs/pretrain): pre-fill guesses for labelers")
     mr = sub.add_parser("meeting-report", help="behavior features on the public AMI/ICSI meeting corpora (annotations only)")
     mr.add_argument("--ami", default=None, help="folder from ami_public_manual_1.6.2.zip")
     mr.add_argument("--icsi", default=None, help="the ICSI folder inside ICSI_core_NXT.zip")
@@ -148,7 +149,7 @@ def main(argv=None):
         upload_models(a.files)
     elif a.cmd == "prep-labeling":
         from .labeling import prep_labeling
-        prep_labeling(a.bucket)
+        prep_labeling(a.bucket, prelabel=a.prelabel)
     elif a.cmd == "meeting-report":
         import pandas as pd
         from . import meetings

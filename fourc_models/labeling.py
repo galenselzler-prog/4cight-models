@@ -122,8 +122,14 @@ def r2_client():
                         aws_secret_access_key=os.environ["R2_SECRET_ACCESS_KEY"])
 
 
-def prep_labeling(bucket: str | None = None, s3=None, log=print) -> dict:
-    """Makes labeling tasks for every uploaded recording not prepared yet."""
+def prep_labeling(bucket: str | None = None, s3=None, log=print, prelabel=None) -> dict:
+    """Makes labeling tasks for every uploaded recording not prepared yet.
+
+    prelabel: a fourc_models.prelabel.Prelabeler (or a folder with a trained utterance model).
+    Its guesses are attached to the tasks as Label Studio predictions; see prelabel.py."""
+    if isinstance(prelabel, (str, Path)):
+        from .prelabel import Prelabeler
+        prelabel = Prelabeler(prelabel)
     s3 = s3 or r2_client()
     bucket = bucket or os.environ.get("R2_RESEARCH_BUCKET", "4cight-research")
     keys = []
@@ -144,10 +150,14 @@ def prep_labeling(bucket: str | None = None, s3=None, log=print) -> dict:
         audio = s3.get_object(Bucket=bucket, Key=f"recordings/{rid}/audio.wav")["Body"].read()
         clip_key = lambda n: f"labeling/clips/{rid}/{n:04d}.wav"  # noqa: E731
         utts = utterance_tasks(rid, meta, lambda n: f"s3://{bucket}/{clip_key(n)}")
-        for n, (a, b, data) in enumerate(utts):
+        preds = prelabel.annotate([d for _, _, d in utts]) if prelabel else [None] * len(utts)
+        for n, ((a, b, data), pred) in enumerate(zip(utts, preds)):
+            task = {"data": data}
+            if pred:
+                task["predictions"] = [pred]
             s3.put_object(Bucket=bucket, Key=clip_key(n), Body=cut_wav(audio, a, b), ContentType="audio/wav")
             s3.put_object(Bucket=bucket, Key=f"labeling/utterance-tasks/{rid}/{n:04d}.json",
-                          Body=json.dumps({"data": data}).encode(), ContentType="application/json")
+                          Body=json.dumps(task).encode(), ContentType="application/json")
         rates = rating_tasks(rid, meta, f"s3://{bucket}/recordings/{rid}/audio.wav")
         for t in rates:
             name = t["rated"].strip("[]").lower()
@@ -212,15 +222,18 @@ def labeling_setup(ls_url: str, ls_token: str, bucket: str | None = None, s3=Non
     ls = LabelStudio(ls_url, ls_token)
     existing = {p["title"]: p for p in ls.call("GET", "/api/projects?page_size=100")["results"]}
     out = {}
-    for title, config, prefix, desc in [
+    for title, config, prefix, desc, show_predictions in [
         ("4Cight utterances", "utterance_config.xml", "labeling/utterance-tasks/",
-         "Label each utterance: speaker, sentiment, move, CT skill, argument, idea link (guide v1.2)."),
+         "Label each utterance: speaker, sentiment, move, CT skill, argument, idea link (guide v1.2).", True),
         ("4Cight segment ratings", "rating_config.xml", "labeling/rating-tasks/",
-         "Teachers: rate each student's communication, collaboration, critical thinking and creativity, 1-4 or NE (guide v1.2)."),
+         "Teachers: rate each student's communication, collaboration, critical thinking and creativity, 1-4 or NE (guide v1.2).", False),
     ]:
         project = existing.get(title) or ls.call("POST", "/api/projects", json={
             "title": title, "description": desc, "label_config": (here / config).read_text(),
-            "maximum_annotations": 2, "show_collab_predictions": False})
+            "maximum_annotations": 2, "show_collab_predictions": show_predictions})
+        if title in existing and project.get("show_collab_predictions") != show_predictions:
+            # projects made before pre-labeling existed: turn prediction display on (utterances only)
+            ls.call("PATCH", f"/api/projects/{project['id']}", json={"show_collab_predictions": show_predictions})
         storages = ls.call("GET", f"/api/storages/s3?project={project['id']}")
         if not storages:
             storage = ls.call("POST", "/api/storages/s3", json={
@@ -307,13 +320,15 @@ def import_labels(utterance_export: str | Path, rating_export: str | Path | None
             "adjudicated": "1" if any(a.get("ground_truth") for a in anns) else "0",
             "split": d.get("split", "train"), "guide_version": d.get("guide_version", L.GUIDE_VERSION),
             "speaker": final["speaker"][0],
+            "prelabel": d.get("prelabel", ""), "model_label": d.get("model_label", ""),
         })
         report["labeled"] += 1
     rows.sort(key=lambda r: r["utterance_id"])  # file order = spoken order within a session
     missing_band = sum(1 for r in rows if not r["grade_band"])
     if missing_band:
         raise ValueError(f"{missing_band} utterances have no grade band; rerun with --grade-band (one of {L.GRADE_BANDS})")
-    cols = UTTERANCE_COLUMNS + [c for c in ["labeler_a", "labeler_b", "label_a", "label_b", "adjudicated", "speaker"]
+    cols = UTTERANCE_COLUMNS + [c for c in ["labeler_a", "labeler_b", "label_a", "label_b", "adjudicated", "speaker",
+                                                    "prelabel", "model_label"]
                                 if c not in UTTERANCE_COLUMNS]
     _write(out / "utterances.csv", cols, rows)
 
